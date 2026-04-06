@@ -13,7 +13,8 @@ Single-page web invitation for Leonor's first birthday, with RSVP submission and
 
 ## Project Structure
 
-- `convite.html`: main page markup
+- `index.html`: main page markup (default entry)
+- `convite.html`: legacy copy of the invitation page
 - `convite.css`: styles, layout, and animations
 - `convite.js`: config, countdown logic, audio handling, and RSVP submit logic
 - `minnie-art.html`: decorative Minnie-style artwork rendered in an iframe
@@ -32,10 +33,10 @@ python -m http.server 8080
 3. Open this URL in your browser:
 
 ```text
-http://localhost:8080/convite.html
+http://localhost:8080/
 ```
 
-You can also open `convite.html` directly, but form and media behavior is usually more reliable through a local server.
+You can also open `index.html` directly, but form and media behavior is usually more reliable through a local server.
 
 ## Configuration
 

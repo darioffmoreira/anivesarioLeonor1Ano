@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convite de Aniversário da Leonor</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="shortcut icon" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="convite.css">
+</head>
+
+<body>
+    <div id="firstVisitLoader" class="first-visit-loader" role="status" aria-live="polite"
+        aria-label="A preparar a festa da Leonor">
+        <div class="first-visit-loader__card">
+            <div class="first-visit-loader__bow" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <p class="first-visit-loader__title">A preparar a festa da Leonor...</p>
+            <div class="first-visit-loader__dots" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bgMusic" class="bg-music" preload="auto" loop playsinline>
+        <source src="audio.mp3" type="audio/mpeg">
+    </audio>
+    <button id="enableAudioBtn" class="enable-audio-btn" type="button" hidden>Ativar música</button>
+
+    <main class="page">
+        <section class="card" aria-labelledby="title">
+            <header class="hero fade-up">
+                <div id="countdown" class="countdown hero-countdown" aria-live="polite">A carregar contagem decrescente...</div>
+                <div class="minnie-frame-wrap" aria-label="Ilustração Minnie animada">
+                    <iframe class="minnie-frame" title="Arte estilo Minnie" loading="lazy"
+                        src="minnie-art.html"></iframe>
+                </div>
+                <h1 id="title">A Leonor faz 1 aninho</h1>
+                <p id="heroSubtitle">Estás convidado(a) para celebrar connosco este primeiro aniversário tão especial.
+                    Sorrisos, abraços e alegria por todo o lado.</p>
+            </header>
+
+            <div class="grid">
+                <aside class="details fade-up delay-1" aria-labelledby="event-details-title">
+                    <h2 id="event-details-title">Detalhes do Evento</h2>
+                    <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
+                        <div><strong id="dateLabel">Data:</strong> <span id="dateValue">10 Maio 2026</span></div>
+                    </div>
+                    <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
+                        <div><strong id="timeLabel">Hora:</strong> <span id="timeValue">15:00</span></div>
+                    </div>
+                    <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
+                        <div><strong id="locationLabel">Local:</strong> <span id="locationValue">Porto, Portugal</span>
+                        </div>
+                    </div>
+                    <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
+                        <div><strong id="confirmUntilLabel">Confirma até:</strong> <span id="confirmUntilValue">30 Abril</span></div>
+                    </div>
+                    <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
+                        <div><strong id="timezoneLabel">Fuso horário:</strong> <span id="timezoneValue">Europe/Lisbon</span></div>
+                    </div>
+                    <div class="map-embed-wrap" aria-label="Mapa do local da festa">
+                        <iframe id="mapEmbed" class="map-embed" title="Mapa do local"
+                        loading="lazy" referrerpolicy="no-referrer-when-downgrade" src=""></iframe>
+                    </div>
+                </aside>
+
+                <section class="form-card fade-up delay-2" aria-labelledby="rsvp-title">
+                    <h2 id="rsvp-title">Confirmação de Presença</h2>
+                    <form id="rsvpForm" novalidate>
+                        <div>
+                            <label for="guestName">O teu nome *</label>
+                            <input id="guestName" name="guestName" type="text" autocomplete="name" required>
+                        </div>
+
+                        <div>
+                            <label for="guestPhone">Telemóvel para contacto *</label>
+                            <input id="guestPhone" name="guestPhone" type="text" inputmode="numeric"
+                                pattern="[0-9]*" autocomplete="tel-national" placeholder="Ex.: 912345678" title="Introduz apenas números"
+                                required>
+                        </div>
+
+                        <div class="fields-2">
+                            <div>
+                                <label for="guestCount">Quantas pessoas?</label>
+                                <input id="guestCount" name="guestCount" type="number" min="1" max="20" value="1">
+                            </div>
+                            <div>
+                                <label for="attendance">Vens? *</label>
+                                <select id="attendance" name="attendance" required>
+                                    <option value="">Seleciona uma opção</option>
+                                    <option value="coming">Sim, vamos</option>
+                                    <option value="maybe">Talvez</option>
+                                    <option value="not-coming">Infelizmente não podemos ir</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="message">Mensagem / comentário *</label>
+                            <textarea id="message" name="message" placeholder="Deixa a tua mensagem para a família..."
+                                required></textarea>
+                        </div>
+
+                        <div class="actions">
+                            <button type="submit" class="btn-primary" id="submitBtn">Enviar confirmação</button>
+                        </div>
+
+                        <div id="formFeedback" class="feedback" role="status" aria-live="polite"></div>
+                    </form>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <script src="convite.js"></script>
+</body>
+
+</html>
