@@ -14,7 +14,6 @@ Single-page web invitation for Leonor's first birthday, with RSVP submission and
 ## Project Structure
 
 - `index.html`: main page markup (default entry)
-- `convite.html`: legacy copy of the invitation page
 - `convite.css`: styles, layout, and animations
 - `convite.js`: config, countdown logic, audio handling, and RSVP submit logic
 - `minnie-art.html`: decorative Minnie-style artwork rendered in an iframe
