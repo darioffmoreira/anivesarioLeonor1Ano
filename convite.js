@@ -34,12 +34,15 @@
             var guestPhoneInput = document.getElementById("guestPhone");
             var firstVisitLoader = document.getElementById("firstVisitLoader");
             var bgMusic = document.getElementById("bgMusic");
-            var enableAudioBtn = document.getElementById("enableAudioBtn");
+            var startAudioBtn = document.getElementById("startAudioBtn");
+            var stopAudioBtn = document.getElementById("stopAudioBtn");
 
             var FIRST_VISIT_LOADER_KEY = "leonor_invite_first_visit_loader_v1";
             var FIRST_VISIT_LOADER_DURATION_MS = 2300;
-            var hasAudioUnlockListener = false;
-            var audioKeepAliveTimer = null;
+            var AUDIO_AUTOSTART_RETRY_INTERVAL_MS = 2200;
+            var userPausedAudio = false;
+            var hasAutoStartFallback = false;
+            var audioAutoStartRetryTimer = null;
 
             function keepOnlyDigits(value) {
                 return value.replace(/\D+/g, "");
@@ -89,80 +92,122 @@
                 window.setTimeout(hideFirstVisitLoader, FIRST_VISIT_LOADER_DURATION_MS);
             }
 
-            function hideEnableAudioButton() {
-                if (enableAudioBtn) {
-                    enableAudioBtn.hidden = true;
+            function updateAudioButtonsState() {
+                if (!bgMusic) {
+                    return;
+                }
+
+                var isPlaying = !bgMusic.paused && !bgMusic.ended;
+
+                if (startAudioBtn) {
+                    startAudioBtn.disabled = isPlaying;
+                    startAudioBtn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+                }
+
+                if (stopAudioBtn) {
+                    stopAudioBtn.disabled = !isPlaying;
+                    stopAudioBtn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
                 }
             }
 
-            function showEnableAudioButton() {
-                if (enableAudioBtn) {
-                    enableAudioBtn.hidden = false;
+            function stopAutoStartRetries() {
+                if (!audioAutoStartRetryTimer) {
+                    return;
                 }
+
+                window.clearInterval(audioAutoStartRetryTimer);
+                audioAutoStartRetryTimer = null;
             }
 
-            function tryStartBackgroundMusic() {
+            function beginAutoStartRetries() {
+                if (!bgMusic || audioAutoStartRetryTimer) {
+                    return;
+                }
+
+                audioAutoStartRetryTimer = window.setInterval(function () {
+                    if (userPausedAudio) {
+                        stopAutoStartRetries();
+                        return;
+                    }
+
+                    if (!bgMusic.paused && !bgMusic.ended) {
+                        stopAutoStartRetries();
+                        return;
+                    }
+
+                    tryAutoStartBackgroundMusic();
+                }, AUDIO_AUTOSTART_RETRY_INTERVAL_MS);
+            }
+
+            function startBackgroundMusic() {
                 if (!bgMusic) {
                     return;
                 }
 
                 if (!bgMusic.paused && !bgMusic.ended) {
-                    hideEnableAudioButton();
+                    stopAutoStartRetries();
+                    updateAudioButtonsState();
                     return;
                 }
+
+                userPausedAudio = false;
 
                 var playPromise = bgMusic.play();
                 if (playPromise && typeof playPromise.then === "function") {
                     playPromise.then(function () {
-                        hideEnableAudioButton();
+                        stopAutoStartRetries();
+                        updateAudioButtonsState();
                     }).catch(function () {
-                        showEnableAudioButton();
-                        bindAudioUnlockListeners();
+                        beginAutoStartRetries();
+                        updateAudioButtonsState();
                     });
-                }
-            }
-
-            function startAudioKeepAlive() {
-                if (audioKeepAliveTimer || !bgMusic) {
                     return;
                 }
 
-                audioKeepAliveTimer = window.setInterval(function () {
-                    tryStartBackgroundMusic();
-                }, 3500);
+                if (!bgMusic.paused && !bgMusic.ended) {
+                    stopAutoStartRetries();
+                }
+                updateAudioButtonsState();
             }
 
-            function bindAudioResilienceHandlers() {
+            function stopBackgroundMusic() {
                 if (!bgMusic) {
                     return;
                 }
 
-                bgMusic.addEventListener("ended", tryStartBackgroundMusic);
-                bgMusic.addEventListener("pause", function () {
-                    window.setTimeout(tryStartBackgroundMusic, 120);
-                });
-
-                document.addEventListener("visibilitychange", function () {
-                    if (!document.hidden) {
-                        tryStartBackgroundMusic();
-                    }
-                });
-
-                window.addEventListener("focus", tryStartBackgroundMusic);
-                window.addEventListener("pageshow", tryStartBackgroundMusic);
+                userPausedAudio = true;
+                stopAutoStartRetries();
+                bgMusic.pause();
+                updateAudioButtonsState();
             }
 
-            function bindAudioUnlockListeners() {
-                if (hasAudioUnlockListener) {
+            function tryAutoStartBackgroundMusic() {
+                if (userPausedAudio) {
                     return;
                 }
 
-                var unlockEvents = ["pointerdown", "keydown", "touchstart"];
+                startBackgroundMusic();
+            }
 
-                hasAudioUnlockListener = true;
-                unlockEvents.forEach(function (eventName) {
-                    document.addEventListener(eventName, tryStartBackgroundMusic, { once: true });
+            function bindAutoStartFallback() {
+                if (hasAutoStartFallback) {
+                    return;
+                }
+
+                hasAutoStartFallback = true;
+
+                document.addEventListener("pointerdown", tryAutoStartBackgroundMusic);
+                document.addEventListener("keydown", tryAutoStartBackgroundMusic);
+                document.addEventListener("touchstart", tryAutoStartBackgroundMusic, { passive: true });
+
+                document.addEventListener("visibilitychange", function () {
+                    if (!document.hidden) {
+                        tryAutoStartBackgroundMusic();
+                    }
                 });
+
+                window.addEventListener("focus", tryAutoStartBackgroundMusic);
+                window.addEventListener("pageshow", tryAutoStartBackgroundMusic);
             }
 
             function setupBackgroundMusic() {
@@ -178,13 +223,26 @@
                     bgMusic.src = INVITE_CONFIG.backgroundMusicUrl;
                 }
 
-                if (enableAudioBtn) {
-                    enableAudioBtn.addEventListener("click", tryStartBackgroundMusic);
+                bgMusic.load();
+
+                if (startAudioBtn) {
+                    startAudioBtn.addEventListener("click", startBackgroundMusic);
                 }
 
-                bindAudioUnlockListeners();
-                bindAudioResilienceHandlers();
-                startAudioKeepAlive();
+                if (stopAudioBtn) {
+                    stopAudioBtn.addEventListener("click", stopBackgroundMusic);
+                }
+
+                bgMusic.addEventListener("play", updateAudioButtonsState);
+                bgMusic.addEventListener("pause", updateAudioButtonsState);
+                bgMusic.addEventListener("ended", updateAudioButtonsState);
+                bgMusic.addEventListener("play", stopAutoStartRetries);
+                bgMusic.addEventListener("canplay", tryAutoStartBackgroundMusic);
+
+                bindAutoStartFallback();
+                beginAutoStartRetries();
+                updateAudioButtonsState();
+                tryAutoStartBackgroundMusic();
             }
 
             function setText(id, value) {
@@ -334,7 +392,6 @@
 
             maybeShowFirstVisitLoader();
             setupBackgroundMusic();
-            tryStartBackgroundMusic();
             applyConfig();
             updateCountdown();
             window.setInterval(updateCountdown, 60000);

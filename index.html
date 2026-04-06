@@ -33,10 +33,19 @@
         </div>
     </div>
 
-    <audio id="bgMusic" class="bg-music" preload="auto" loop playsinline>
+    <audio id="bgMusic" class="bg-music" preload="auto" loop playsinline autoplay>
         <source src="audio.mp3" type="audio/mpeg">
     </audio>
-    <button id="enableAudioBtn" class="enable-audio-btn" type="button" hidden>Ativar música</button>
+    <div class="audio-controls" role="group" aria-label="Controlo de música de fundo">
+        <button id="startAudioBtn" class="audio-btn" type="button" aria-label="Retomar música">
+            <span class="audio-btn__icon" aria-hidden="true">&#9654;</span>
+            <span class="audio-btn__text">Retomar música</span>
+        </button>
+        <button id="stopAudioBtn" class="audio-btn audio-btn--stop" type="button" disabled aria-label="Parar música">
+            <span class="audio-btn__icon" aria-hidden="true">&#9632;</span>
+            <span class="audio-btn__text">Parar música</span>
+        </button>
+    </div>
 
     <main class="page">
         <section class="card" aria-labelledby="title">
