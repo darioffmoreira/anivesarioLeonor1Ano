@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse Art</title>
+    <style>
+        :root {
+            --art-width: 307;
+            --art-height: 430;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .art-stage {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .art-scale {
+            width: calc(var(--art-width) * 1px);
+            height: calc(var(--art-height) * 1px);
+            transform-origin: top center;
+            transform: scale(min(1, calc(100vw / (var(--art-width) * 1px)), calc(100vh / (var(--art-height) * 1px))));
+        }
+
+        #box {
+            height: 430px;
+            width: 307px;
+            padding: 184px 0 0 0;
+            border: 0;
+            margin: 0 auto;
+        }
+
+        #boxx {
+            opacity: 1;
+            position: relative;
+            height: 200px;
+            width: 200px;
+            margin: 0 auto;
+            border: 1px solid #000;
+            border-radius: 50%;
+            background: #000;
+            animation: floaty 3.2s ease-in-out infinite;
+        }
+
+        #boxx:after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            height: 120px;
+            width: 110px;
+            top: -60px;
+            left: -70px;
+            background: #000;
+            border: 1px solid #000;
+        }
+
+        #boxx:before {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            height: 115px;
+            width: 100px;
+            top: -60px;
+            right: -60px;
+            background: #000;
+            border: 1px solid #000;
+        }
+
+        .ci {
+            opacity: 1;
+            transform: rotate(33deg);
+            height: 53px;
+            width: 99px;
+            border-radius: 50%;
+            background: #fedcbd;
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            z-index: 1;
+            box-shadow: -1px 1px #000, 1px 2px #000;
+        }
+
+        .cd {
+            opacity: 1;
+            transform: rotate(-35deg);
+            height: 53px;
+            width: 99px;
+            border-radius: 50%;
+            background: #fedcbd;
+            position: absolute;
+            bottom: 7px;
+            right: -4px;
+            z-index: 0;
+            box-shadow: 1px 1px #000, -2px 1px #000;
+        }
+
+        .cc {
+            height: 150px;
+            width: 90px;
+            border-radius: 50%;
+            background: #fedcbd;
+            border: 2px solid #000;
+            border-top-width: 0;
+            border-left-color: #fedcbd;
+            border-right-color: #fedcbd;
+            position: absolute;
+            bottom: -17px;
+            right: 52px;
+            z-index: 1;
+        }
+
+        .coi {
+            opacity: 1;
+            height: 170px;
+            width: 87px;
+            border-radius: 50%;
+            background: #fedcbd;
+            position: absolute;
+            top: 10px;
+            left: 30px;
+            z-index: 2;
+        }
+
+        .oi {
+            overflow: hidden;
+            height: 73px;
+            width: 26px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid #000;
+            position: absolute;
+            top: 63px;
+            left: 73px;
+            z-index: 5;
+            transform-origin: center 60%;
+            animation: blink 5s infinite;
+        }
+
+        .od {
+            overflow: hidden;
+            height: 70px;
+            width: 25px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid #000;
+            position: absolute;
+            top: 63px;
+            right: 63px;
+            z-index: 5;
+            transform-origin: center 60%;
+            animation: blink 5s infinite;
+        }
+
+        .poi {
+            height: 30px;
+            width: 13px;
+            border-radius: 50%;
+            background: #000;
+            border: 1px solid #000;
+            position: absolute;
+            bottom: -4px;
+            left: 4px;
+            z-index: 5;
+        }
+
+        .pod {
+            height: 27px;
+            width: 13px;
+            border-radius: 50%;
+            background: #000;
+            position: absolute;
+            bottom: 0;
+            left: 2px;
+            z-index: 5;
+        }
+
+        .cod {
+            opacity: 1;
+            height: 170px;
+            width: 77px;
+            border-radius: 50%;
+            background: #fedcbd;
+            position: absolute;
+            top: 10px;
+            right: 28px;
+            z-index: 2;
+        }
+
+        .t {
+            height: 30px;
+            width: 74px;
+            border-radius: 50%;
+            background: #fedcbd;
+            border: 2px solid #000;
+            border-bottom-width: 0;
+            border-left-width: 0;
+            border-right-width: 0;
+            position: absolute;
+            top: 130px;
+            left: 72px;
+            z-index: 5;
+        }
+
+        .n {
+            height: 30px;
+            width: 57px;
+            border-radius: 50%;
+            background: #000;
+            position: absolute;
+            top: 140px;
+            left: 81px;
+            z-index: 5;
+        }
+
+        .l {
+            height: 130px;
+            width: 130px;
+            border-radius: 50%;
+            border-top: 2px solid transparent;
+            border-left: 2px solid transparent;
+            border-right: 2px solid #000;
+            border-bottom: 2px solid #000;
+            position: absolute;
+            top: 58px;
+            left: 40px;
+            z-index: 4;
+            transform: rotate(69deg);
+        }
+
+        .l:before {
+            content: "";
+            height: 15px;
+            width: 55px;
+            background: #fedcbd;
+            position: absolute;
+            top: 114px;
+            left: 16px;
+            z-index: 4;
+            transform: rotate(22deg);
+        }
+
+        .b2 {
+            height: 106px;
+            width: 120px;
+            border-radius: 50%;
+            background: #fedcbd;
+            position: absolute;
+            top: 84px;
+            left: 47px;
+            z-index: 4;
+        }
+
+        .b2:before {
+            content: "";
+            position: absolute;
+            height: 8px;
+            width: 15px;
+            border-radius: 50%;
+            border-top: 2px solid #000;
+            border-left: 2px solid transparent;
+            top: 66px;
+            right: -6px;
+            transform: rotate(21deg);
+        }
+
+        .b2:after {
+            content: "";
+            position: absolute;
+            height: 8px;
+            width: 15px;
+            border-radius: 50%;
+            border-top: 2px solid #000;
+            top: 66px;
+            left: -6px;
+            transform: rotate(340deg);
+        }
+
+        .b {
+            height: 70px;
+            width: 62px;
+            border-radius: 50%;
+            background: #000;
+            border: 2px solid #000;
+            position: absolute;
+            top: 136px;
+            left: 69px;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .bn {
+            height: 17px;
+            width: 27px;
+            background: #fb9e8b;
+            border-radius: 100% 0 0 0;
+            border: 2px solid #000;
+            position: absolute;
+            top: 50px;
+            left: 6px;
+            border-bottom-color: transparent;
+            border-right-color: transparent;
+            transform: rotate(41deg);
+            z-index: 3;
+        }
+
+        .bm {
+            height: 17px;
+            width: 22px;
+            border-radius: 50%;
+            background: #fb9e8b;
+            position: absolute;
+            top: 57px;
+            left: 31px;
+            transform: rotate(6deg);
+            z-index: 1;
+        }
+
+        .pei {
+            position: absolute;
+            height: 8px;
+            width: 24px;
+            border-radius: 0 0 0 100%;
+            border: 1px solid #000;
+            top: 50px;
+            left: 62px;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            transform: rotate(49deg);
+            z-index: 6;
+        }
+
+        .pei:before {
+            content: "";
+            position: absolute;
+            height: 8px;
+            width: 24px;
+            border-radius: 0 0 0 100%;
+            border: 1px solid #000;
+            top: 10px;
+            left: 2px;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            transform: rotate(336deg);
+            z-index: 6;
+        }
+
+        .pei:after {
+            content: "";
+            position: absolute;
+            height: 8px;
+            width: 24px;
+            border-radius: 0 0 0 100%;
+            border: 1px solid #000;
+            top: -14px;
+            left: 6px;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            transform: rotate(18deg);
+            z-index: 6;
+        }
+
+        .ped {
+            position: absolute;
+            height: 8px;
+            width: 26px;
+            border-radius: 0 0 0 100%;
+            border: 1px solid #000;
+            top: 48px;
+            left: 120px;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            transform: rotate(282deg);
+            z-index: 6;
+        }
+
+        .ped:before {
+            content: "";
+            position: absolute;
+            height: 8px;
+            width: 26px;
+            border-radius: 0 0 0 100%;
+            border: 1px solid #000;
+            top: 10px;
+            left: -7px;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            transform: rotate(27deg);
+            z-index: 6;
+        }
+
+        .ped:after {
+            content: "";
+            position: absolute;
+            height: 8px;
+            width: 26px;
+            border-radius: 0 0 0 100%;
+            border: 1px solid #000;
+            top: -14px;
+            left: -1px;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            transform: rotate(337deg);
+            z-index: 6;
+        }
+
+        .mi {
+            position: absolute;
+            height: 141px;
+            width: 82px;
+            border-radius: 430% 999% 500% 530%;
+            border-top: 2px solid #000;
+            border-left: 2px solid #000;
+            border-right: 2px solid #000;
+            border-bottom: 2px solid #e51837;
+            background: #e51837;
+            top: -127px;
+            left: -5px;
+            transform: rotate(351deg);
+            z-index: 6;
+            overflow: hidden;
+        }
+
+        .mi0 {
+            overflow: hidden;
+            position: absolute;
+            height: 92px;
+            width: 98px;
+            border-radius: 170% 110% 180% 80%;
+            border-top: 2px solid #e51837;
+            border-right: 0 solid #e51837;
+            border-bottom: 2px solid #000;
+            background: #e51837;
+            top: -64px;
+            left: -12px;
+            transform: rotate(-13deg);
+            z-index: 7;
+        }
+
+        .md {
+            overflow: hidden;
+            position: absolute;
+            height: 120px;
+            width: 88px;
+            border-radius: 800% 160% 460% 150%;
+            border-top: 2px solid #000;
+            border-left: 2px solid #000;
+            border-right: 2px solid #000;
+            border-bottom: 2px solid #fff;
+            background: #e51837;
+            top: -119px;
+            right: 5px;
+            z-index: 3;
+        }
+
+        .md0 {
+            overflow: hidden;
+            position: absolute;
+            height: 60px;
+            width: 102px;
+            border-radius: 100px 160px 110px 150px;
+            border-top: 2px solid #e51837;
+            border-left: 2px solid #e51837;
+            border-bottom: 2px solid #000;
+            background: #e51837;
+            top: -42px;
+            right: -5px;
+            transform: rotate(13deg);
+            z-index: 4;
+        }
+
+        .mc {
+            position: absolute;
+            height: 50px;
+            width: 45px;
+            border-radius: 120px 150px 110px 150px;
+            border: 2px solid #000;
+            background: #e51837;
+            overflow: hidden;
+            top: -39px;
+            right: 80px;
+            transform: rotate(13deg);
+            z-index: 5;
+        }
+
+        .b-1,
+        .b-2,
+        .b-3,
+        .b-4,
+        .b-5,
+        .b-6,
+        .b-7,
+        .b-8,
+        .b-9,
+        .b-10,
+        .b-11,
+        .b-12 {
+            position: absolute;
+            height: 36px;
+            width: 36px;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .b-1 {
+            top: -27px;
+            left: -5px;
+        }
+
+        .b-2 {
+            top: 2px;
+            left: 50px;
+        }
+
+        .b-3 {
+            top: -72px;
+            left: 8px;
+            z-index: 8;
+        }
+
+        .b-4 {
+            top: 36px;
+            left: 67px;
+        }
+
+        .b-5 {
+            top: 36px;
+            left: -17px;
+        }
+
+        .b-6 {
+            bottom: -23px;
+            left: 28px;
+        }
+
+        .b-7 {
+            top: 7px;
+            left: -19px;
+        }
+
+        .b-8 {
+            top: 16px;
+            left: 72px;
+        }
+
+        .b-9 {
+            top: 36px;
+            left: -18px;
+        }
+
+        .b-10 {
+            top: 2px;
+            left: 92px;
+        }
+
+        .b-11 {
+            top: 40px;
+            left: 18px;
+        }
+
+        .b-12 {
+            top: -51px;
+            left: 140px;
+            z-index: 8;
+        }
+
+        .r-1 {
+            position: absolute;
+            height: 76px;
+            width: 11px;
+            border-radius: 50%;
+            border: 2px solid #000;
+            border-top-width: 0;
+            border-left-width: 0;
+            border-bottom-width: 0;
+            top: 13px;
+            left: 51px;
+            transform: rotate(322deg);
+        }
+
+        .r-2 {
+            position: absolute;
+            height: 56px;
+            width: 12px;
+            border-radius: 50%;
+            border: 2px solid #000;
+            border-top-width: 0;
+            border-left-color: transparent;
+            border-bottom-color: transparent;
+            top: 23px;
+            right: 20px;
+            transform: rotate(291deg);
+        }
+
+        .r-3 {
+            position: absolute;
+            height: 6px;
+            width: 42px;
+            border-radius: 50%;
+            border: 2px solid #000;
+            border-right-width: 0;
+            border-left-width: 0;
+            border-bottom-width: 0;
+            top: 26px;
+            left: -6px;
+            transform: rotate(324deg);
+        }
+
+        .r-4 {
+            position: absolute;
+            height: 10px;
+            width: 87px;
+            border-radius: 50%;
+            border: 2px solid #000;
+            border-right-width: 0;
+            border-left-width: 0;
+            border-bottom-width: 0;
+            top: -69px;
+            left: 93px;
+            transform: rotate(305deg);
+            z-index: 10;
+        }
+
+        .r-4:before {
+            content: "";
+            position: absolute;
+            height: 10px;
+            width: 23px;
+            border-radius: 50%;
+            border: 2px solid #000;
+            border-right-width: 0;
+            border-left-width: 0;
+            border-bottom-width: 0;
+            top: -9px;
+            left: 75px;
+            transform: rotate(173deg);
+        }
+
+        @keyframes floaty {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes blink {
+
+            0%,
+            45%,
+            100% {
+                transform: scaleY(1);
+            }
+
+            48%,
+            52% {
+                transform: scaleY(.1);
+            }
+        }
+
+        @media (max-width: 520px) {
+            #box {
+                padding-top: 170px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="art-stage">
+        <div class="art-scale">
+            <div id="box">
+                <div id="boxx">
+                    <div class="b-3"></div>
+                    <div class="b-12"></div>
+                    <div class="r-4"></div>
+
+                    <div class="mi">
+                        <div class="b-1"></div>
+                        <div class="b-2"></div>
+                        <div class="r-1"></div>
+                    </div>
+                    <div class="mi0">
+                        <div class="b-4"></div>
+                        <div class="b-5"></div>
+                        <div class="b-6"></div>
+                        <div class="r-2"></div>
+                    </div>
+
+                    <div class="mc">
+                        <div class="b-7"></div>
+                    </div>
+
+                    <div class="md">
+                        <div class="b-8"></div>
+                        <div class="b-9"></div>
+                    </div>
+                    <div class="md0">
+                        <div class="b-10"></div>
+                        <div class="b-11"></div>
+                        <div class="r-3"></div>
+                    </div>
+
+                    <div class="pei"></div>
+                    <div class="ped"></div>
+                    <div class="coi"></div>
+                    <div class="oi">
+                        <div class="poi"></div>
+                    </div>
+                    <div class="od">
+                        <div class="pod"></div>
+                    </div>
+                    <div class="cod"></div>
+                    <div class="t"></div>
+                    <div class="n"></div>
+                    <div class="l"></div>
+                    <div class="b2"></div>
+                    <div class="b">
+                        <div class="bn"></div>
+                        <div class="bm"></div>
+                    </div>
+                    <div class="ci"></div>
+                    <div class="cc"></div>
+                    <div class="cd"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
