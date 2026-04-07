@@ -11,7 +11,7 @@
                 confirmUntilText: "30 Abril",
                 mapUrl: "https://maps.app.goo.gl/zihM4u8z5jqbvsU6A",
                 mapEmbedUrl: "https://maps.google.com/maps?q=Av.%20Xanana%20Gusmao%20369%2C%204460-840%20Custoias%20-%20Matosinhos&z=16&output=embed",
-                backgroundMusicUrl: "audio.mp3",
+                backgroundMusicUrl: "assets/media/audio.mp3",
                 backgroundMusicVolume: 0.45,
                 emailService: {
                     endpoint: "https://formspree.io/f/mvzvlovk",
@@ -1059,7 +1059,7 @@
                 params.set("horaEvento", INVITE_CONFIG.eventTimeText);
                 params.set("localEvento", INVITE_CONFIG.eventLocationText);
 
-                return "agradecimento.html?" + params.toString();
+                return "pages/agradecimento.html?" + params.toString();
             }
 
             form.addEventListener("submit", async function (event) {

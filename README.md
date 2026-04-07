@@ -4,7 +4,7 @@ Single-page web invitation for Leonor's first birthday, with RSVP submission and
 
 ## Features
 
-- Animated hero section with Minnie art (loaded from `minnie-art.html`)
+- Animated hero section with Minnie art (loaded from `pages/minnie-art.html`)
 - Live countdown to the event date
 - Background music with user-gesture fallback for browser autoplay policies
 - RSVP form with validation (name, phone, attendance, message)
@@ -14,11 +14,12 @@ Single-page web invitation for Leonor's first birthday, with RSVP submission and
 ## Project Structure
 
 - `index.html`: main page markup (default entry)
-- `convite.css`: styles, layout, and animations
-- `convite.js`: config, countdown logic, audio handling, and RSVP submit logic
-- `minnie-art.html`: decorative Minnie-style artwork rendered in an iframe
-- `audio.mp3`: background music file
-- `favicon.svg`: site icon
+- `assets/css/convite.css`: styles, layout, and animations
+- `assets/js/convite.js`: config, countdown logic, audio handling, and RSVP submit logic
+- `pages/minnie-art.html`: decorative Minnie-style artwork rendered in an iframe
+- `pages/agradecimento.html`: thank-you page with ticket and calendar options
+- `assets/media/audio.mp3`: background music file
+- `assets/media/favicon.svg`: site icon
 
 ## Run Locally
 
@@ -39,7 +40,7 @@ You can also open `index.html` directly, but form and media behavior is usually 
 
 ## Configuration
 
-Most editable values live in the `INVITE_CONFIG` object at the top of `convite.js`.
+Most editable values live in the `INVITE_CONFIG` object at the top of `assets/js/convite.js`.
 
 Common values to update:
 
