@@ -41,7 +41,7 @@
                 linear-gradient(145deg, #ff7ea8 0%, #ff5f91 36%, #ff8f6a 74%, #ffc979 100%);
             display: grid;
             place-items: center;
-            padding: 20px;
+            padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
             overflow-x: hidden;
         }
 
@@ -94,7 +94,7 @@
         .thanks-card {
             position: relative;
             z-index: 20;
-            width: min(94vw, 700px);
+            width: min(100%, 700px);
             border-radius: 28px;
             padding: 34px 24px 28px;
             text-align: center;
@@ -177,6 +177,7 @@
             color: var(--ink-soft);
             font-weight: 700;
             font-size: 0.97rem;
+            overflow-wrap: anywhere;
         }
 
         .ticket-grid {
@@ -235,6 +236,8 @@
             font-weight: 700;
             color: var(--red-main);
             letter-spacing: 0.06em;
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         .ticket-actions {
@@ -281,6 +284,7 @@
             align-items: center;
             justify-content: center;
             min-height: 48px;
+            width: 100%;
         }
 
         .btn:hover {
@@ -318,6 +322,14 @@
                 padding: 28px 16px 22px;
             }
 
+            h1 {
+                font-size: clamp(1.65rem, 8.2vw, 2.2rem);
+            }
+
+            .thanks-subtitle {
+                font-size: 0.98rem;
+            }
+
             .ticket-card {
                 border-radius: 18px;
                 padding: 14px 12px;
@@ -334,6 +346,23 @@
             .btn {
                 font-size: 0.96rem;
                 border-radius: 12px;
+            }
+
+            .ticket-code {
+                font-size: 0.95rem;
+                letter-spacing: 0.04em;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .thanks-tag {
+                font-size: 0.68rem;
+                letter-spacing: 0.05em;
+            }
+
+            .ticket-code {
+                font-size: 0.86rem;
+                letter-spacing: 0.02em;
             }
         }
 
