@@ -1,5 +1,5 @@
 ﻿(function () {
-            var INVITE_CONFIG = {
+            const INVITE_CONFIG = {
                 themeEyebrow: "Festa de Aniversário Minnie",
                 title: "A Leonor faz 1 aninho",
                 heroSubtitle: "Junta-te a nós para celebrar este dia tão especial!",
@@ -26,26 +26,111 @@
                 }
             };
 
-            var eventDate = new Date(INVITE_CONFIG.eventDateISO);
-            var countdownEl = document.getElementById("countdown");
-            var form = document.getElementById("rsvpForm");
-            var submitBtn = document.getElementById("submitBtn");
-            var feedbackEl = document.getElementById("formFeedback");
-            var guestPhoneInput = document.getElementById("guestPhone");
-            var firstVisitLoader = document.getElementById("firstVisitLoader");
-            var bgMusic = document.getElementById("bgMusic");
-            var startAudioBtn = document.getElementById("startAudioBtn");
-            var stopAudioBtn = document.getElementById("stopAudioBtn");
+            const eventDate = new Date(INVITE_CONFIG.eventDateISO);
+            const countdownEl = document.getElementById("countdown");
+            const form = document.getElementById("rsvpForm");
+            const submitBtn = document.getElementById("submitBtn");
+            const feedbackEl = document.getElementById("formFeedback");
+            const guestPhoneInput = document.getElementById("guestPhone");
+            const firstVisitLoader = document.getElementById("firstVisitLoader");
+            const bgMusic = document.getElementById("bgMusic");
+            const audioToggleBtn = document.getElementById("audioToggleBtn");
+            const audioToggleIcon = document.getElementById("audioToggleIcon");
+            const siteConfettiLayer = document.getElementById("siteConfettiLayer");
+            const minnieFrameWrap = document.querySelector(".minnie-frame-wrap");
+            const minnieSurpriseBtn = document.getElementById("minnieSurpriseBtn");
+            const minnieFunLayer = document.getElementById("minnieFunLayer");
 
-            var FIRST_VISIT_LOADER_KEY = "leonor_invite_first_visit_loader_v1";
-            var FIRST_VISIT_LOADER_DURATION_MS = 2300;
-            var AUDIO_AUTOSTART_RETRY_INTERVAL_MS = 2200;
-            var userPausedAudio = false;
-            var hasAutoStartFallback = false;
-            var audioAutoStartRetryTimer = null;
+            const FIRST_VISIT_LOADER_KEY = "leonor_invite_first_visit_loader_v1";
+            const FIRST_VISIT_LOADER_DURATION_MS = 2300;
+            const AUDIO_AUTOSTART_RETRY_INTERVAL_MS = 2200;
+            const MINNIE_CLICK_COOLDOWN_MS = 120;
+            const MINNIE_RAPID_CLICK_WINDOW_MS = 900;
+            const MINNIE_RAPID_CLICK_MIN_STREAK = 3;
+            const MINNIE_EFFECT_DURATION_MS = 1900;
+            const SITE_CLICK_CONFETTI_COOLDOWN_MS = 90;
+            let userPausedAudio = false;
+            let hasAutoStartFallback = false;
+            let audioAutoStartRetryTimer = null;
+            let hasTriedMutedBootstrap = false;
+            let lastSiteConfettiAt = 0;
+            let minnieClicksCount = 0;
+            let lastMinnieClickAt = 0;
+            let minnieRapidClickStreak = 0;
+            let lastRapidMinnieClickAt = 0;
+            const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+            const MINNIE_MESSAGES = [
+                "A Minnie mandou um beijinho.",
+                "Mais brilho para a festa.",
+                "A Leonor adorou esse clique.",
+                "Sorrisos em modo festa.",
+                "Um clique cheio de magia."
+            ];
+
+            const MINNIE_MILESTONE_MESSAGES = [
+                "Uau! Clique especial de festa.",
+                "Confetti extra para celebrar.",
+                "A Minnie entrou em modo wow."
+            ];
+
+            const MINNIE_MEGA_MESSAGES = [
+                "Modo turbo da Minnie ativado.",
+                "A Minnie esta em modo danca.",
+                "Nivel arco-iris desbloqueado."
+            ];
+
+            const MINNIE_TURBO_MESSAGES = [
+                "Cliques turbo! Chuva de confetis.",
+                "A Minnie girou 3 piruetas seguidas.",
+                "Modo festa maxima nos teus cliques."
+            ];
+
+            const MINNIE_CONFETTI_COLORS = [
+                "#E65282",
+                "#C84673",
+                "#f4a9c4",
+                "#ffd76d",
+                "#ffffff"
+            ];
 
             function keepOnlyDigits(value) {
                 return value.replace(/\D+/g, "");
+            }
+
+            function pickRandom(list) {
+                return list[Math.floor(Math.random() * list.length)];
+            }
+
+            function removeElementLater(node, delayMs) {
+                window.setTimeout(function () {
+                    if (node && node.parentNode) {
+                        node.parentNode.removeChild(node);
+                    }
+                }, delayMs);
+            }
+
+            function getViewportClickPosition(event, fallbackElement) {
+                if (event && typeof event.clientX === "number" && typeof event.clientY === "number" && (event.clientX > 0 || event.clientY > 0)) {
+                    return {
+                        x: event.clientX,
+                        y: event.clientY
+                    };
+                }
+
+                if (fallbackElement && typeof fallbackElement.getBoundingClientRect === "function") {
+                    const rect = fallbackElement.getBoundingClientRect();
+
+                    return {
+                        x: rect.left + (rect.width / 2),
+                        y: rect.top + (rect.height / 2)
+                    };
+                }
+
+                return {
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight / 2
+                };
             }
 
             if (guestPhoneInput) {
@@ -92,21 +177,29 @@
                 window.setTimeout(hideFirstVisitLoader, FIRST_VISIT_LOADER_DURATION_MS);
             }
 
-            function updateAudioButtonsState() {
+            function isBackgroundMusicPlaying() {
+                return !!bgMusic && !bgMusic.paused && !bgMusic.ended;
+            }
+
+            function updateAudioToggleState() {
                 if (!bgMusic) {
                     return;
                 }
 
-                var isPlaying = !bgMusic.paused && !bgMusic.ended;
+                const isPlaying = isBackgroundMusicPlaying();
 
-                if (startAudioBtn) {
-                    startAudioBtn.disabled = isPlaying;
-                    startAudioBtn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+                if (!audioToggleBtn) {
+                    return;
                 }
 
-                if (stopAudioBtn) {
-                    stopAudioBtn.disabled = !isPlaying;
-                    stopAudioBtn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+                audioToggleBtn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+                audioToggleBtn.setAttribute("aria-label", isPlaying ? "Pausar música" : "Retomar música");
+                audioToggleBtn.setAttribute("title", isPlaying ? "Pausar música" : "Retomar música");
+                audioToggleBtn.classList.toggle("is-playing", isPlaying);
+
+                if (audioToggleIcon) {
+                    audioToggleIcon.innerHTML = isPlaying ? "&#10074;&#10074;" : "&#9654;";
+                    audioToggleIcon.classList.toggle("audio-toggle-btn__icon--pause", isPlaying);
                 }
             }
 
@@ -139,27 +232,53 @@
                 }, AUDIO_AUTOSTART_RETRY_INTERVAL_MS);
             }
 
-            function startBackgroundMusic() {
+            function tryPlayBackgroundMusic(allowMutedBootstrap) {
                 if (!bgMusic) {
                     return;
                 }
 
-                if (!bgMusic.paused && !bgMusic.ended) {
+                if (isBackgroundMusicPlaying()) {
                     stopAutoStartRetries();
-                    updateAudioButtonsState();
+                    updateAudioToggleState();
                     return;
                 }
 
-                userPausedAudio = false;
+                bgMusic.muted = false;
+                bgMusic.volume = INVITE_CONFIG.backgroundMusicVolume;
 
-                var playPromise = bgMusic.play();
+                const playPromise = bgMusic.play();
                 if (playPromise && typeof playPromise.then === "function") {
                     playPromise.then(function () {
                         stopAutoStartRetries();
-                        updateAudioButtonsState();
+                        updateAudioToggleState();
                     }).catch(function () {
+                        if (!allowMutedBootstrap || hasTriedMutedBootstrap) {
+                            beginAutoStartRetries();
+                            updateAudioToggleState();
+                            return;
+                        }
+
+                        hasTriedMutedBootstrap = true;
+                        bgMusic.muted = true;
+
+                        const mutedPromise = bgMusic.play();
+                        if (mutedPromise && typeof mutedPromise.then === "function") {
+                            mutedPromise.then(function () {
+                                bgMusic.muted = false;
+                                bgMusic.volume = INVITE_CONFIG.backgroundMusicVolume;
+                                stopAutoStartRetries();
+                                updateAudioToggleState();
+                            }).catch(function () {
+                                bgMusic.muted = false;
+                                beginAutoStartRetries();
+                                updateAudioToggleState();
+                            });
+                            return;
+                        }
+
+                        bgMusic.muted = false;
                         beginAutoStartRetries();
-                        updateAudioButtonsState();
+                        updateAudioToggleState();
                     });
                     return;
                 }
@@ -167,7 +286,16 @@
                 if (!bgMusic.paused && !bgMusic.ended) {
                     stopAutoStartRetries();
                 }
-                updateAudioButtonsState();
+                updateAudioToggleState();
+            }
+
+            function startBackgroundMusic(allowMutedBootstrap) {
+                if (!bgMusic) {
+                    return;
+                }
+
+                userPausedAudio = false;
+                tryPlayBackgroundMusic(allowMutedBootstrap);
             }
 
             function stopBackgroundMusic() {
@@ -178,7 +306,16 @@
                 userPausedAudio = true;
                 stopAutoStartRetries();
                 bgMusic.pause();
-                updateAudioButtonsState();
+                updateAudioToggleState();
+            }
+
+            function toggleBackgroundMusic() {
+                if (isBackgroundMusicPlaying()) {
+                    stopBackgroundMusic();
+                    return;
+                }
+
+                startBackgroundMusic(false);
             }
 
             function tryAutoStartBackgroundMusic() {
@@ -186,7 +323,7 @@
                     return;
                 }
 
-                startBackgroundMusic();
+                startBackgroundMusic(true);
             }
 
             function bindAutoStartFallback() {
@@ -196,7 +333,7 @@
 
                 hasAutoStartFallback = true;
 
-                document.addEventListener("pointerdown", tryAutoStartBackgroundMusic);
+                document.addEventListener("pointerdown", tryAutoStartBackgroundMusic, { passive: true });
                 document.addEventListener("keydown", tryAutoStartBackgroundMusic);
                 document.addEventListener("touchstart", tryAutoStartBackgroundMusic, { passive: true });
 
@@ -225,42 +362,253 @@
 
                 bgMusic.load();
 
-                if (startAudioBtn) {
-                    startAudioBtn.addEventListener("click", startBackgroundMusic);
+                if (audioToggleBtn) {
+                    audioToggleBtn.addEventListener("click", toggleBackgroundMusic);
                 }
 
-                if (stopAudioBtn) {
-                    stopAudioBtn.addEventListener("click", stopBackgroundMusic);
-                }
-
-                bgMusic.addEventListener("play", updateAudioButtonsState);
-                bgMusic.addEventListener("pause", updateAudioButtonsState);
-                bgMusic.addEventListener("ended", updateAudioButtonsState);
+                bgMusic.addEventListener("play", updateAudioToggleState);
+                bgMusic.addEventListener("pause", updateAudioToggleState);
+                bgMusic.addEventListener("ended", updateAudioToggleState);
                 bgMusic.addEventListener("play", stopAutoStartRetries);
                 bgMusic.addEventListener("canplay", tryAutoStartBackgroundMusic);
+                bgMusic.addEventListener("canplaythrough", tryAutoStartBackgroundMusic);
 
                 bindAutoStartFallback();
                 beginAutoStartRetries();
-                updateAudioButtonsState();
+                updateAudioToggleState();
                 tryAutoStartBackgroundMusic();
+                window.setTimeout(tryAutoStartBackgroundMusic, 260);
+                window.setTimeout(tryAutoStartBackgroundMusic, 900);
+            }
+
+            function showMinnieMessage(text, kindClass) {
+                if (!minnieFunLayer) {
+                    return;
+                }
+
+                const messageEl = document.createElement("div");
+
+                messageEl.className = "minnie-fun-message" + (kindClass ? " " + kindClass : "");
+                messageEl.textContent = text;
+                minnieFunLayer.appendChild(messageEl);
+
+                removeElementLater(messageEl, MINNIE_EFFECT_DURATION_MS);
+            }
+
+            function spawnMinnieConfetti(amount, spreadPx) {
+                if (!minnieFunLayer) {
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+                const piecesToCreate = prefersReducedMotion ? Math.min(12, amount) : amount;
+
+                for (let i = 0; i < piecesToCreate; i += 1) {
+                    const piece = document.createElement("span");
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 56 + Math.random() * spreadPx;
+                    const x = Math.cos(angle) * distance;
+                    const y = (Math.sin(angle) * distance) - (22 + Math.random() * 46);
+                    const rotation = Math.round((Math.random() * 780) - 390);
+
+                    piece.className = "minnie-confetti" + (Math.random() > 0.64 ? " is-round" : "");
+                    piece.style.setProperty("--tx", x.toFixed(2) + "px");
+                    piece.style.setProperty("--ty", y.toFixed(2) + "px");
+                    piece.style.setProperty("--rot", rotation + "deg");
+                    piece.style.setProperty("--confetti-color", pickRandom(MINNIE_CONFETTI_COLORS));
+                    piece.style.animationDelay = (Math.random() * 0.12).toFixed(2) + "s";
+
+                    fragment.appendChild(piece);
+                    removeElementLater(piece, 1400);
+                }
+
+                minnieFunLayer.appendChild(fragment);
+            }
+
+            function spawnSiteWideConfettiAt(x, y, amount, spreadPx) {
+                if (!siteConfettiLayer) {
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+                const piecesToCreate = prefersReducedMotion ? Math.min(10, amount) : amount;
+
+                for (let i = 0; i < piecesToCreate; i += 1) {
+                    const piece = document.createElement("span");
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 52 + Math.random() * spreadPx;
+                    const dx = Math.cos(angle) * distance;
+                    const dy = (Math.sin(angle) * distance) - (16 + Math.random() * 34);
+                    const rotation = Math.round((Math.random() * 740) - 370);
+
+                    piece.className = "site-confetti" + (Math.random() > 0.65 ? " is-round" : "");
+                    piece.style.left = x.toFixed(2) + "px";
+                    piece.style.top = y.toFixed(2) + "px";
+                    piece.style.setProperty("--tx", dx.toFixed(2) + "px");
+                    piece.style.setProperty("--ty", dy.toFixed(2) + "px");
+                    piece.style.setProperty("--rot", rotation + "deg");
+                    piece.style.setProperty("--confetti-color", pickRandom(MINNIE_CONFETTI_COLORS));
+                    piece.style.animationDelay = (Math.random() * 0.08).toFixed(2) + "s";
+
+                    fragment.appendChild(piece);
+                    removeElementLater(piece, 1350);
+                }
+
+                siteConfettiLayer.appendChild(fragment);
+            }
+
+            function pulseMinnieWrap() {
+                if (!minnieFrameWrap || prefersReducedMotion) {
+                    return;
+                }
+
+                minnieFrameWrap.classList.remove("is-celebrating");
+                void minnieFrameWrap.offsetWidth;
+                minnieFrameWrap.classList.add("is-celebrating");
+
+                window.setTimeout(function () {
+                    if (minnieFrameWrap) {
+                        minnieFrameWrap.classList.remove("is-celebrating");
+                    }
+                }, 430);
+            }
+
+            function celebrateMinnieClick(event) {
+                const now = Date.now();
+                let message = pickRandom(MINNIE_MESSAGES);
+                let messageClass = "";
+                let confettiAmount = 20;
+                let confettiSpread = 118;
+                let isRapidMode = false;
+                const clickPoint = getViewportClickPosition(event, minnieFrameWrap);
+
+                if (now - lastMinnieClickAt < MINNIE_CLICK_COOLDOWN_MS) {
+                    return;
+                }
+
+                lastMinnieClickAt = now;
+                minnieClicksCount += 1;
+
+                if (now - lastRapidMinnieClickAt <= MINNIE_RAPID_CLICK_WINDOW_MS) {
+                    minnieRapidClickStreak += 1;
+                } else {
+                    minnieRapidClickStreak = 1;
+                }
+                lastRapidMinnieClickAt = now;
+
+                isRapidMode = minnieRapidClickStreak >= MINNIE_RAPID_CLICK_MIN_STREAK;
+
+                if (minnieClicksCount % 10 === 0) {
+                    message = pickRandom(MINNIE_MEGA_MESSAGES);
+                    messageClass = "is-mega";
+                    confettiAmount = 48;
+                    confettiSpread = 210;
+                } else if (minnieClicksCount % 5 === 0) {
+                    message = pickRandom(MINNIE_MILESTONE_MESSAGES);
+                    messageClass = "is-milestone";
+                    confettiAmount = 34;
+                    confettiSpread = 162;
+                }
+
+                if (isRapidMode) {
+                    message = pickRandom(MINNIE_TURBO_MESSAGES);
+                    messageClass = "is-mega";
+                    confettiAmount += 14 + Math.min(28, (minnieRapidClickStreak - MINNIE_RAPID_CLICK_MIN_STREAK) * 5);
+                    confettiSpread += 80;
+                }
+
+                pulseMinnieWrap();
+                showMinnieMessage(message, messageClass);
+                spawnMinnieConfetti(confettiAmount, confettiSpread);
+                spawnSiteWideConfettiAt(clickPoint.x, clickPoint.y, Math.max(14, Math.round(confettiAmount * 0.6)), confettiSpread + 44);
+
+                if (isRapidMode && !prefersReducedMotion) {
+                    window.setTimeout(function () {
+                        spawnMinnieConfetti(Math.max(16, Math.round(confettiAmount * 0.6)), confettiSpread + 36);
+                        spawnSiteWideConfettiAt(clickPoint.x, clickPoint.y, Math.max(12, Math.round(confettiAmount * 0.4)), confettiSpread + 70);
+                    }, 120);
+                }
+            }
+
+            function handleSiteWideConfettiClick(event) {
+                const now = Date.now();
+                let clickPoint;
+                const target = event && event.target ? event.target : null;
+                const skipSelector = "button, a, input, select, textarea, option, label, iframe";
+
+                if (!siteConfettiLayer) {
+                    return;
+                }
+
+                if (event && event.button && event.button !== 0) {
+                    return;
+                }
+
+                if (now - lastSiteConfettiAt < SITE_CLICK_CONFETTI_COOLDOWN_MS) {
+                    return;
+                }
+
+                if (target && typeof target.closest === "function" && target.closest(skipSelector)) {
+                    return;
+                }
+
+                if (minnieFrameWrap && event && event.target && minnieFrameWrap.contains(event.target)) {
+                    return;
+                }
+
+                lastSiteConfettiAt = now;
+                clickPoint = getViewportClickPosition(event, document.body);
+
+                spawnSiteWideConfettiAt(clickPoint.x, clickPoint.y, 14, 130);
+            }
+
+            function setupSiteWideConfetti() {
+                if (!siteConfettiLayer) {
+                    return;
+                }
+
+                document.addEventListener("click", handleSiteWideConfettiClick, { passive: true });
+            }
+
+            function setupMinnieSurprises() {
+                if (!minnieFrameWrap) {
+                    return;
+                }
+
+                if (minnieSurpriseBtn) {
+                    minnieSurpriseBtn.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        celebrateMinnieClick(event);
+                    });
+                }
+
+                minnieFrameWrap.addEventListener("click", function (event) {
+                    if (minnieSurpriseBtn && event.target === minnieSurpriseBtn) {
+                        return;
+                    }
+
+                    event.stopPropagation();
+                    celebrateMinnieClick(event);
+                });
             }
 
             function setText(id, value) {
-                var el = document.getElementById(id);
+                const el = document.getElementById(id);
                 if (el) {
                     el.textContent = value;
                 }
             }
 
             function setHref(id, value) {
-                var el = document.getElementById(id);
+                const el = document.getElementById(id);
                 if (el) {
                     el.href = value;
                 }
             }
 
             function setSrc(id, value) {
-                var el = document.getElementById(id);
+                const el = document.getElementById(id);
                 if (el) {
                     el.src = value;
                 }
@@ -287,20 +635,20 @@
             }
 
             function updateCountdown() {
-                var diff = eventDate.getTime() - Date.now();
+                const diff = eventDate.getTime() - Date.now();
 
                 if (diff <= 0) {
                     countdownEl.textContent = "Hoje é dia de festa.";
                     return;
                 }
 
-                var day = 24 * 60 * 60 * 1000;
-                var hour = 60 * 60 * 1000;
-                var minute = 60 * 1000;
+                const day = 24 * 60 * 60 * 1000;
+                const hour = 60 * 60 * 1000;
+                const minute = 60 * 1000;
 
-                var days = Math.floor(diff / day);
-                var hours = Math.floor((diff % day) / hour);
-                var minutes = Math.floor((diff % hour) / minute);
+                const days = Math.floor(diff / day);
+                const hours = Math.floor((diff % day) / hour);
+                const minutes = Math.floor((diff % hour) / minute);
 
                 countdownEl.textContent = "A festa começa em " + days + " dias, " + hours + " horas e " + minutes + " minutos.";
             }
@@ -313,13 +661,13 @@
             form.addEventListener("submit", async function (event) {
                 event.preventDefault();
 
-                var guestName = document.getElementById("guestName").value.trim();
-                var guestPhone = keepOnlyDigits(document.getElementById("guestPhone").value.trim());
-                var guestCount = document.getElementById("guestCount").value;
-                var attendanceSelect = document.getElementById("attendance");
-                var attendance = attendanceSelect.value;
-                var attendanceText = attendanceSelect.options[attendanceSelect.selectedIndex].text;
-                var message = document.getElementById("message").value.trim();
+                const guestName = document.getElementById("guestName").value.trim();
+                const guestPhone = keepOnlyDigits(document.getElementById("guestPhone").value.trim());
+                const guestCount = document.getElementById("guestCount").value;
+                const attendanceSelect = document.getElementById("attendance");
+                const attendance = attendanceSelect.value;
+                const attendanceText = attendanceSelect.options[attendanceSelect.selectedIndex].text;
+                const message = document.getElementById("message").value.trim();
 
                 document.getElementById("guestPhone").value = guestPhone;
 
@@ -333,13 +681,13 @@
                     return;
                 }
 
-                var numericGuestCount = Number(guestCount || 1);
+                const numericGuestCount = Number(guestCount || 1);
                 if (!Number.isFinite(numericGuestCount) || numericGuestCount < 1 || numericGuestCount > 20) {
                     showFeedback("error", "O número de pessoas deve estar entre 1 e 20.");
                     return;
                 }
 
-                var entry = {
+                const entry = {
                     submittedAt: new Date().toISOString(),
                     guestName: guestName,
                     guestPhone: guestPhone,
@@ -358,7 +706,7 @@
                 submitBtn.textContent = "A enviar...";
 
                 try {
-                    var response = await fetch(INVITE_CONFIG.emailService.endpoint, {
+                    const response = await fetch(INVITE_CONFIG.emailService.endpoint, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -392,6 +740,8 @@
 
             maybeShowFirstVisitLoader();
             setupBackgroundMusic();
+            setupMinnieSurprises();
+            setupSiteWideConfetti();
             applyConfig();
             updateCountdown();
             window.setInterval(updateCountdown, 60000);

@@ -36,16 +36,12 @@
     <audio id="bgMusic" class="bg-music" preload="auto" loop playsinline autoplay>
         <source src="audio.mp3" type="audio/mpeg">
     </audio>
-    <div class="audio-controls" role="group" aria-label="Controlo de música de fundo">
-        <button id="startAudioBtn" class="audio-btn" type="button" aria-label="Retomar música">
-            <span class="audio-btn__icon" aria-hidden="true">&#9654;</span>
-            <span class="audio-btn__text">Retomar música</span>
-        </button>
-        <button id="stopAudioBtn" class="audio-btn audio-btn--stop" type="button" disabled aria-label="Parar música">
-            <span class="audio-btn__icon" aria-hidden="true">&#9632;</span>
-            <span class="audio-btn__text">Parar música</span>
+    <div class="audio-floating-control" aria-label="Controlo de música">
+        <button id="audioToggleBtn" class="audio-toggle-btn" type="button" aria-label="Pausar música" title="Pausar música">
+            <span id="audioToggleIcon" class="audio-toggle-btn__icon" aria-hidden="true">&#10074;&#10074;</span>
         </button>
     </div>
+    <div id="siteConfettiLayer" class="site-confetti-layer" aria-hidden="true"></div>
 
     <main class="page">
         <section class="card" aria-labelledby="title">
@@ -54,6 +50,8 @@
                 <div class="minnie-frame-wrap" aria-label="Ilustração Minnie animada">
                     <iframe class="minnie-frame" title="Arte estilo Minnie" loading="lazy"
                         src="minnie-art.html"></iframe>
+                    <button id="minnieSurpriseBtn" class="minnie-surprise-btn" type="button" aria-label="Ativar surpresa da Minnie"></button>
+                    <div id="minnieFunLayer" class="minnie-fun-layer" aria-live="polite" aria-atomic="true"></div>
                 </div>
                 <h1 id="title">A Leonor faz 1 aninho</h1>
                 <p id="heroSubtitle">Estás convidado(a) para celebrar connosco este primeiro aniversário tão especial.

@@ -45,63 +45,60 @@
             display: none;
         }
 
-        .audio-controls {
+        .audio-floating-control {
             position: fixed;
-            right: 14px;
-            bottom: 14px;
-            z-index: 3100;
-            display: flex;
-            gap: 8px;
+            top: max(12px, env(safe-area-inset-top));
+            right: max(12px, env(safe-area-inset-right));
+            z-index: 2900;
         }
 
-        .audio-controls .audio-btn {
-            border: 0;
-            border-radius: 999px;
-            padding: 10px 14px;
-            font-size: 0.88rem;
-            font-weight: 800;
-            font-family: "Nunito", sans-serif;
+        .site-confetti-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2800;
+            overflow: hidden;
+        }
+
+        .audio-toggle-btn {
+            border: 1px solid rgba(255, 255, 255, 0.68);
+            border-radius: 50%;
+            width: 46px;
+            height: 46px;
+            padding: 0;
             color: #fff;
-            background: linear-gradient(130deg, #1f1f24, #3a3440);
-            box-shadow: 0 10px 20px rgba(31, 31, 36, 0.34);
+            background: linear-gradient(130deg, rgba(31, 31, 36, 0.9), rgba(58, 52, 64, 0.9));
+            box-shadow: 0 10px 20px rgba(31, 31, 36, 0.3);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
             line-height: 1;
+            backdrop-filter: blur(4px);
         }
 
-        .audio-controls .audio-btn__text {
-            white-space: nowrap;
-        }
-
-        .audio-controls .audio-btn__icon {
-            font-size: 0.88rem;
+        .audio-toggle-btn__icon {
+            font-size: 1rem;
             width: 1em;
             height: 1em;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             line-height: 1;
-            flex: 0 0 auto;
-            transform: translateY(-0.5px);
+            transform: none;
         }
 
-        .audio-controls .audio-btn.audio-btn--stop .audio-btn__icon {
-            font-size: 0.78rem;
-            transform: translateY(-1px);
+        .audio-toggle-btn.is-playing .audio-toggle-btn__icon {
+            font-size: 0.82rem;
+            letter-spacing: 1px;
         }
 
-        .audio-controls .audio-btn.audio-btn--stop {
-            background: linear-gradient(130deg, #5d1d2f, #8a2e49);
-        }
-
-        .audio-controls .audio-btn:hover:not(:disabled) {
+        .audio-toggle-btn:hover:not(:disabled) {
             filter: brightness(1.08);
             transform: translateY(-1px);
         }
 
-        .audio-controls .audio-btn:disabled {
+        .audio-toggle-btn:disabled {
             opacity: 0.56;
             cursor: not-allowed;
             box-shadow: none;
@@ -363,6 +360,8 @@
             border: 0;
             box-shadow: none;
             padding: 0;
+            position: relative;
+            overflow: visible;
         }
 
         .minnie-frame {
@@ -372,6 +371,112 @@
             border: 0;
             border-radius: 0;
             background: transparent;
+            pointer-events: none;
+        }
+
+        .minnie-surprise-btn {
+            position: absolute;
+            inset: 0;
+            border: 0;
+            margin: 0;
+            padding: 0;
+            border-radius: 14px;
+            background: transparent;
+            cursor: pointer;
+            z-index: 2;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .minnie-surprise-btn:focus-visible {
+            outline: 3px solid rgba(230, 82, 130, 0.66);
+            outline-offset: 4px;
+        }
+
+        .minnie-fun-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        .minnie-fun-message {
+            position: absolute;
+            left: 50%;
+            top: 16%;
+            transform: translate(-50%, 0) scale(0.92);
+            padding: 8px 12px;
+            max-width: calc(100% - 22px);
+            border-radius: 999px;
+            border: 1px solid #ffc9dd;
+            background: rgba(255, 255, 255, 0.95);
+            color: #3d2a34;
+            font-weight: 800;
+            font-size: 0.86rem;
+            line-height: 1.2;
+            text-align: center;
+            white-space: nowrap;
+            box-shadow: 0 12px 22px rgba(126, 34, 68, 0.24);
+            opacity: 0;
+            animation: minnieMessagePop 1.75s ease forwards;
+        }
+
+        .minnie-fun-message.is-milestone,
+        .minnie-fun-message.is-mega {
+            background: linear-gradient(120deg, #f5a8c2 0%, var(--pink-main) 55%, var(--red-main) 100%);
+            border-color: rgba(255, 255, 255, 0.7);
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(46, 23, 34, 0.34);
+        }
+
+        .minnie-fun-message.is-mega {
+            font-size: 0.9rem;
+            padding: 9px 14px;
+        }
+
+        .minnie-confetti {
+            position: absolute;
+            left: 50%;
+            top: 52%;
+            width: 8px;
+            height: 12px;
+            border-radius: 2px;
+            background: var(--confetti-color, var(--pink-main));
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+            animation: minnieConfettiBurst 1.05s cubic-bezier(.17, .84, .44, 1) forwards;
+            will-change: transform, opacity;
+        }
+
+        .site-confetti {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            width: 8px;
+            height: 12px;
+            border-radius: 2px;
+            background: var(--confetti-color, var(--pink-main));
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+            animation: minnieConfettiBurst 1.05s cubic-bezier(.17, .84, .44, 1) forwards;
+            will-change: transform, opacity;
+        }
+
+        .site-confetti.is-round {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+        }
+
+        .minnie-confetti.is-round {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+        }
+
+        .minnie-frame-wrap.is-celebrating {
+            animation: minnieWrapPop 0.42s ease;
         }
 
         h1 {
@@ -788,6 +893,58 @@
             }
         }
 
+        @keyframes minnieMessagePop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 8px) scale(0.88);
+            }
+
+            14% {
+                opacity: 1;
+                transform: translate(-50%, -4px) scale(1.03);
+            }
+
+            82% {
+                opacity: 1;
+                transform: translate(-50%, -10px) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -16px) scale(0.97);
+            }
+        }
+
+        @keyframes minnieConfettiBurst {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.45) rotate(0deg);
+            }
+
+            15% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot));
+            }
+        }
+
+        @keyframes minnieWrapPop {
+            0% {
+                transform: scale(1);
+            }
+
+            45% {
+                transform: scale(1.03);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .first-visit-loader,
             .first-visit-loader__card,
@@ -795,9 +952,28 @@
             .first-visit-loader__bow::before,
             .first-visit-loader__bow::after,
             .first-visit-loader__bow span,
-            .first-visit-loader__dots span {
+            .first-visit-loader__dots span,
+            .minnie-frame-wrap.is-celebrating,
+            .site-confetti,
+            .minnie-confetti,
+            .minnie-fun-message {
                 animation: none;
                 transition: none;
+            }
+
+            .minnie-confetti {
+                opacity: 0.9;
+                transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)));
+            }
+
+            .site-confetti {
+                opacity: 0.9;
+                transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)));
+            }
+
+            .minnie-fun-message {
+                opacity: 1;
+                transform: translate(-50%, -8px) scale(1);
             }
         }
 
@@ -830,34 +1006,15 @@
                 margin-top: 10px;
             }
 
-            .audio-controls {
-                left: 10px;
-                right: 10px;
-                bottom: 10px;
-                justify-content: center;
+            .audio-floating-control {
+                top: auto;
+                right: max(10px, env(safe-area-inset-right));
+                bottom: max(10px, env(safe-area-inset-bottom));
             }
 
-            .audio-controls .audio-btn {
-                flex: 0 0 auto;
+            .audio-toggle-btn {
                 width: 44px;
                 height: 44px;
-                padding: 0;
-                justify-content: center;
-                border-radius: 50%;
-            }
-
-            .audio-controls .audio-btn__text {
-                display: none;
-            }
-
-            .audio-controls .audio-btn__icon {
-                font-size: 1rem;
-                transform: none;
-            }
-
-            .audio-controls .audio-btn.audio-btn--stop .audio-btn__icon {
-                font-size: 0.82rem;
-                transform: none;
             }
 
             .card {
@@ -879,6 +1036,12 @@
 
             .minnie-frame-wrap {
                 margin-top: 20px;
+            }
+
+            .minnie-fun-message {
+                font-size: 0.77rem;
+                padding: 7px 10px;
+                top: 12%;
             }
 
         }
