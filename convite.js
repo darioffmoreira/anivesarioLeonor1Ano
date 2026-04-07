@@ -17,6 +17,10 @@
                     endpoint: "https://formspree.io/f/mvzvlovk",
                     enabled: true
                 },
+                features: {
+                    enableDigitalTicket: true,
+                    enableSingleSubmissionLock: true
+                },
                 labels: {
                     date: "Data:",
                     time: "Hora:",
@@ -31,19 +35,27 @@
             const form = document.getElementById("rsvpForm");
             const submitBtn = document.getElementById("submitBtn");
             const feedbackEl = document.getElementById("formFeedback");
+            const guestNameInput = document.getElementById("guestName");
             const guestPhoneInput = document.getElementById("guestPhone");
+            const guestCountInput = document.getElementById("guestCount");
+            const attendanceInput = document.getElementById("attendance");
             const firstVisitLoader = document.getElementById("firstVisitLoader");
             const bgMusic = document.getElementById("bgMusic");
             const audioToggleBtn = document.getElementById("audioToggleBtn");
             const audioToggleIcon = document.getElementById("audioToggleIcon");
+            const audioUnlockHint = document.getElementById("audioUnlockHint");
+            const ticketPreviewLink = document.getElementById("ticketPreviewLink");
             const siteConfettiLayer = document.getElementById("siteConfettiLayer");
             const minnieFrameWrap = document.querySelector(".minnie-frame-wrap");
             const minnieSurpriseBtn = document.getElementById("minnieSurpriseBtn");
             const minnieFunLayer = document.getElementById("minnieFunLayer");
 
             const FIRST_VISIT_LOADER_KEY = "leonor_invite_first_visit_loader_v1";
-            const FIRST_VISIT_LOADER_DURATION_MS = 2300;
+            const FIRST_VISIT_LOADER_DURATION_MS = 6000;
             const AUDIO_AUTOSTART_RETRY_INTERVAL_MS = 2200;
+            const AUDIO_FADE_IN_DURATION_MS = 900;
+            const AUDIO_FADE_OUT_DURATION_MS = 820;
+            const AUDIO_FADE_STEP_MS = 40;
             const MINNIE_CLICK_COOLDOWN_MS = 120;
             const MINNIE_RAPID_CLICK_WINDOW_MS = 900;
             const MINNIE_RAPID_CLICK_MIN_STREAK = 3;
@@ -52,12 +64,18 @@
             let userPausedAudio = false;
             let hasAutoStartFallback = false;
             let audioAutoStartRetryTimer = null;
+            let audioUnlockHintTimer = null;
+            let audioFadeTimer = null;
             let hasTriedMutedBootstrap = false;
             let lastSiteConfettiAt = 0;
             let minnieClicksCount = 0;
             let lastMinnieClickAt = 0;
             let minnieRapidClickStreak = 0;
             let lastRapidMinnieClickAt = 0;
+            const isDigitalTicketEnabled = !!(INVITE_CONFIG.features && INVITE_CONFIG.features.enableDigitalTicket);
+            const isSingleSubmissionLockEnabled = !!(INVITE_CONFIG.features && INVITE_CONFIG.features.enableSingleSubmissionLock);
+            const SUBMISSION_LOCK_KEY = "leonor_invite_submission_lock_v1";
+            let existingSubmissionLock = null;
             const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
             const MINNIE_MESSAGES = [
@@ -98,6 +116,98 @@
                 return value.replace(/\D+/g, "");
             }
 
+            function normalizeGuestCount(value) {
+                const parsed = Number(value);
+
+                if (!Number.isFinite(parsed)) {
+                    return 1;
+                }
+
+                return Math.max(1, Math.min(20, Math.round(parsed)));
+            }
+
+            function createTicketHashSeed(value) {
+                let hash = 0;
+
+                for (let index = 0; index < value.length; index += 1) {
+                    hash = ((hash * 31) + value.charCodeAt(index)) % 1679616;
+                }
+
+                return hash.toString(36).toUpperCase().padStart(4, "0");
+            }
+
+            function generateTicketCode(entry) {
+                const safeName = String(entry.guestName || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+                const namePart = (safeName || "GUEST").slice(0, 3).padEnd(3, "X");
+                const countPart = String(normalizeGuestCount(entry.guestCount)).padStart(2, "0");
+                const phoneDigits = keepOnlyDigits(String(entry.guestPhone || ""));
+                const phonePart = phoneDigits.slice(-3).padStart(3, "0");
+                const attendancePart = String(entry.attendance || "");
+                const hashSeed = createTicketHashSeed([safeName, phoneDigits, countPart, attendancePart, INVITE_CONFIG.eventDateISO].join("|"));
+
+                return "LEO-" + namePart + countPart + "-" + phonePart + hashSeed;
+            }
+
+            function buildPreviewEntryFromForm() {
+                if (!isDigitalTicketEnabled) {
+                    return null;
+                }
+
+                if (!guestNameInput || !guestPhoneInput || !guestCountInput || !attendanceInput) {
+                    return null;
+                }
+
+                const guestName = guestNameInput.value.trim();
+                const guestPhone = keepOnlyDigits(guestPhoneInput.value.trim());
+                const guestCount = normalizeGuestCount(guestCountInput.value);
+                const attendance = attendanceInput.value;
+                const hasMinimumFields = guestName.length >= 2 && guestPhone.length >= 9 && !!attendance && attendance !== "not-coming";
+
+                if (!hasMinimumFields) {
+                    return null;
+                }
+
+                return {
+                    guestName: guestName,
+                    guestPhone: guestPhone,
+                    guestCount: guestCount,
+                    attendance: attendance
+                };
+            }
+
+            function deactivateTicketPreviewLink() {
+                if (!ticketPreviewLink) {
+                    return;
+                }
+
+                ticketPreviewLink.hidden = true;
+                ticketPreviewLink.href = "#";
+                ticketPreviewLink.setAttribute("aria-disabled", "true");
+            }
+
+            function updateTicketPreviewLink() {
+                if (!ticketPreviewLink) {
+                    return;
+                }
+
+                if (!isDigitalTicketEnabled || (isSingleSubmissionLockEnabled && !!existingSubmissionLock)) {
+                    deactivateTicketPreviewLink();
+                    return;
+                }
+
+                const previewEntry = buildPreviewEntryFromForm();
+
+                if (!previewEntry) {
+                    deactivateTicketPreviewLink();
+                    return;
+                }
+
+                previewEntry.ticketCode = generateTicketCode(previewEntry);
+                ticketPreviewLink.href = buildThankYouUrl(previewEntry);
+                ticketPreviewLink.hidden = false;
+                ticketPreviewLink.removeAttribute("aria-disabled");
+            }
+
             function pickRandom(list) {
                 return list[Math.floor(Math.random() * list.length)];
             }
@@ -136,6 +246,28 @@
             if (guestPhoneInput) {
                 guestPhoneInput.addEventListener("input", function () {
                     this.value = keepOnlyDigits(this.value);
+                    updateTicketPreviewLink();
+                });
+            }
+
+            if (guestNameInput) {
+                guestNameInput.addEventListener("input", updateTicketPreviewLink);
+            }
+
+            if (guestCountInput) {
+                guestCountInput.addEventListener("input", updateTicketPreviewLink);
+                guestCountInput.addEventListener("change", updateTicketPreviewLink);
+            }
+
+            if (attendanceInput) {
+                attendanceInput.addEventListener("change", updateTicketPreviewLink);
+            }
+
+            if (ticketPreviewLink) {
+                ticketPreviewLink.addEventListener("click", function (event) {
+                    if (ticketPreviewLink.getAttribute("aria-disabled") === "true") {
+                        event.preventDefault();
+                    }
                 });
             }
 
@@ -181,6 +313,97 @@
                 return !!bgMusic && !bgMusic.paused && !bgMusic.ended;
             }
 
+            function clearAudioUnlockHintTimer() {
+                if (!audioUnlockHintTimer) {
+                    return;
+                }
+
+                window.clearTimeout(audioUnlockHintTimer);
+                audioUnlockHintTimer = null;
+            }
+
+            function clearAudioFade() {
+                if (!audioFadeTimer) {
+                    return;
+                }
+
+                window.clearInterval(audioFadeTimer);
+                audioFadeTimer = null;
+            }
+
+            function fadeAudioTo(targetVolume, durationMs, onComplete) {
+                const safeTarget = Math.max(0, Math.min(1, targetVolume));
+                const startVolume = Number.isFinite(bgMusic.volume) ? bgMusic.volume : 0;
+                const delta = safeTarget - startVolume;
+
+                clearAudioFade();
+
+                if (Math.abs(delta) < 0.01 || durationMs <= 0) {
+                    bgMusic.volume = safeTarget;
+                    if (typeof onComplete === "function") {
+                        onComplete();
+                    }
+                    return;
+                }
+
+                const totalSteps = Math.max(1, Math.round(durationMs / AUDIO_FADE_STEP_MS));
+                const stepDuration = Math.max(16, Math.round(durationMs / totalSteps));
+                let currentStep = 0;
+
+                audioFadeTimer = window.setInterval(function () {
+                    currentStep += 1;
+                    bgMusic.volume = startVolume + ((delta * currentStep) / totalSteps);
+
+                    if (currentStep >= totalSteps) {
+                        clearAudioFade();
+                        bgMusic.volume = safeTarget;
+
+                        if (typeof onComplete === "function") {
+                            onComplete();
+                        }
+                    }
+                }, stepDuration);
+            }
+
+            function hideAudioUnlockHint() {
+                if (!audioUnlockHint) {
+                    return;
+                }
+
+                clearAudioUnlockHintTimer();
+                audioUnlockHint.classList.remove("is-visible");
+                audioUnlockHint.hidden = true;
+            }
+
+            function showAudioUnlockHint() {
+                if (!audioUnlockHint) {
+                    return;
+                }
+
+                clearAudioUnlockHintTimer();
+                audioUnlockHint.hidden = false;
+
+                window.requestAnimationFrame(function () {
+                    if (audioUnlockHint) {
+                        audioUnlockHint.classList.add("is-visible");
+                    }
+                });
+            }
+
+            function scheduleAudioUnlockHint() {
+                if (!audioUnlockHint || userPausedAudio || isBackgroundMusicPlaying()) {
+                    hideAudioUnlockHint();
+                    return;
+                }
+
+                clearAudioUnlockHintTimer();
+                audioUnlockHintTimer = window.setTimeout(function () {
+                    if (!userPausedAudio && !isBackgroundMusicPlaying()) {
+                        showAudioUnlockHint();
+                    }
+                }, 900);
+            }
+
             function updateAudioToggleState() {
                 if (!bgMusic) {
                     return;
@@ -200,6 +423,14 @@
                 if (audioToggleIcon) {
                     audioToggleIcon.innerHTML = isPlaying ? "&#10074;&#10074;" : "&#9654;";
                     audioToggleIcon.classList.toggle("audio-toggle-btn__icon--pause", isPlaying);
+                }
+
+                if (isPlaying) {
+                    hideAudioUnlockHint();
+                } else if (!userPausedAudio) {
+                    scheduleAudioUnlockHint();
+                } else {
+                    hideAudioUnlockHint();
                 }
             }
 
@@ -237,19 +468,24 @@
                     return;
                 }
 
+                const targetVolume = INVITE_CONFIG.backgroundMusicVolume;
+
                 if (isBackgroundMusicPlaying()) {
                     stopAutoStartRetries();
+                    fadeAudioTo(targetVolume, AUDIO_FADE_IN_DURATION_MS);
                     updateAudioToggleState();
                     return;
                 }
 
+                clearAudioFade();
                 bgMusic.muted = false;
-                bgMusic.volume = INVITE_CONFIG.backgroundMusicVolume;
+                bgMusic.volume = 0;
 
                 const playPromise = bgMusic.play();
                 if (playPromise && typeof playPromise.then === "function") {
                     playPromise.then(function () {
                         stopAutoStartRetries();
+                        fadeAudioTo(targetVolume, AUDIO_FADE_IN_DURATION_MS);
                         updateAudioToggleState();
                     }).catch(function () {
                         if (!allowMutedBootstrap || hasTriedMutedBootstrap) {
@@ -260,13 +496,14 @@
 
                         hasTriedMutedBootstrap = true;
                         bgMusic.muted = true;
+                        bgMusic.volume = 0;
 
                         const mutedPromise = bgMusic.play();
                         if (mutedPromise && typeof mutedPromise.then === "function") {
                             mutedPromise.then(function () {
                                 bgMusic.muted = false;
-                                bgMusic.volume = INVITE_CONFIG.backgroundMusicVolume;
                                 stopAutoStartRetries();
+                                fadeAudioTo(targetVolume, AUDIO_FADE_IN_DURATION_MS);
                                 updateAudioToggleState();
                             }).catch(function () {
                                 bgMusic.muted = false;
@@ -285,6 +522,7 @@
 
                 if (!bgMusic.paused && !bgMusic.ended) {
                     stopAutoStartRetries();
+                    fadeAudioTo(targetVolume, AUDIO_FADE_IN_DURATION_MS);
                 }
                 updateAudioToggleState();
             }
@@ -295,6 +533,8 @@
                 }
 
                 userPausedAudio = false;
+                hideAudioUnlockHint();
+                clearAudioFade();
                 tryPlayBackgroundMusic(allowMutedBootstrap);
             }
 
@@ -305,8 +545,18 @@
 
                 userPausedAudio = true;
                 stopAutoStartRetries();
-                bgMusic.pause();
-                updateAudioToggleState();
+
+                if (bgMusic.paused || bgMusic.ended) {
+                    clearAudioFade();
+                    updateAudioToggleState();
+                    return;
+                }
+
+                fadeAudioTo(0, AUDIO_FADE_OUT_DURATION_MS, function () {
+                    bgMusic.pause();
+                    bgMusic.volume = INVITE_CONFIG.backgroundMusicVolume;
+                    updateAudioToggleState();
+                });
             }
 
             function toggleBackgroundMusic() {
@@ -658,8 +908,167 @@
                 feedbackEl.textContent = message;
             }
 
+            function readSubmissionLock() {
+                if (!isSingleSubmissionLockEnabled) {
+                    return null;
+                }
+
+                try {
+                    const rawLock = window.localStorage.getItem(SUBMISSION_LOCK_KEY);
+
+                    if (!rawLock) {
+                        return null;
+                    }
+
+                    const parsedLock = JSON.parse(rawLock);
+
+                    if (!parsedLock || typeof parsedLock !== "object") {
+                        return null;
+                    }
+
+                    return parsedLock;
+                } catch (error) {
+                    return null;
+                }
+            }
+
+            function storeSubmissionLock(entry) {
+                if (!isSingleSubmissionLockEnabled) {
+                    return;
+                }
+
+                const lockPayload = {
+                    submittedAt: entry.submittedAt,
+                    guestName: entry.guestName,
+                    guestCount: entry.guestCount,
+                    attendance: entry.attendance
+                };
+
+                existingSubmissionLock = lockPayload;
+
+                try {
+                    window.localStorage.setItem(SUBMISSION_LOCK_KEY, JSON.stringify(lockPayload));
+                } catch (error) {
+                    return;
+                }
+            }
+
+            function formatSubmissionDate(value) {
+                const submissionDate = new Date(value);
+
+                if (!Number.isFinite(submissionDate.getTime())) {
+                    return "";
+                }
+
+                return submissionDate.toLocaleString("pt-PT", {
+                    dateStyle: "short",
+                    timeStyle: "short"
+                });
+            }
+
+            function applySubmissionLockState() {
+                let lockedMessage;
+                let submittedAtText;
+
+                if (!isSingleSubmissionLockEnabled || !existingSubmissionLock || !form) {
+                    return;
+                }
+
+                form.querySelectorAll("input, select, textarea, button").forEach(function (field) {
+                    field.disabled = true;
+                });
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = "Confirmação já enviada";
+                }
+
+                deactivateTicketPreviewLink();
+
+                submittedAtText = formatSubmissionDate(existingSubmissionLock.submittedAt);
+                lockedMessage = submittedAtText
+                    ? "Já recebemos a tua confirmação neste dispositivo em " + submittedAtText + "."
+                    : "Já recebemos a tua confirmação neste dispositivo.";
+
+                showFeedback("ok", lockedMessage);
+            }
+
+            function buildFormspreePayload(entry) {
+                const formPayload = new URLSearchParams();
+
+                formPayload.set("_subject", "RSVP Aniversário Leonor");
+                formPayload.set("nome", entry.guestName);
+                formPayload.set("telemovel", entry.guestPhone);
+                formPayload.set("pessoas", String(entry.guestCount));
+                formPayload.set("presenca", entry.attendanceText);
+                formPayload.set("mensagem", entry.message);
+                formPayload.set("enviado_em", entry.submittedAt);
+
+                if (isDigitalTicketEnabled) {
+                    formPayload.set("codigo_ingresso", entry.ticketCode || generateTicketCode(entry));
+                }
+
+                return formPayload;
+            }
+
+            async function getFormspreeErrorMessage(response) {
+                let payload;
+
+                try {
+                    payload = await response.json();
+                } catch (error) {
+                    return "";
+                }
+
+                if (!payload) {
+                    return "";
+                }
+
+                if (Array.isArray(payload.errors) && payload.errors.length > 0) {
+                    return payload.errors.map(function (entry) {
+                        return entry && entry.message ? entry.message : "";
+                    }).filter(Boolean).join(" ");
+                }
+
+                if (typeof payload.error === "string") {
+                    return payload.error;
+                }
+
+                if (typeof payload.message === "string") {
+                    return payload.message;
+                }
+
+                return "";
+            }
+
+            function buildThankYouUrl(entry) {
+                const params = new URLSearchParams();
+                const ticketCode = entry.ticketCode || generateTicketCode(entry);
+
+                params.set("nome", entry.guestName);
+                params.set("presenca", entry.attendance || "coming");
+                params.set("pessoas", String(normalizeGuestCount(entry.guestCount)));
+                params.set("ingressoAtivo", isDigitalTicketEnabled ? "1" : "0");
+
+                if (isDigitalTicketEnabled) {
+                    params.set("ingresso", ticketCode);
+                }
+
+                params.set("evento", INVITE_CONFIG.title);
+                params.set("dataEvento", INVITE_CONFIG.eventDateText);
+                params.set("horaEvento", INVITE_CONFIG.eventTimeText);
+                params.set("localEvento", INVITE_CONFIG.eventLocationText);
+
+                return "agradecimento.html?" + params.toString();
+            }
+
             form.addEventListener("submit", async function (event) {
                 event.preventDefault();
+
+                if (isSingleSubmissionLockEnabled && existingSubmissionLock) {
+                    applySubmissionLockState();
+                    return;
+                }
 
                 const guestName = document.getElementById("guestName").value.trim();
                 const guestPhone = keepOnlyDigits(document.getElementById("guestPhone").value.trim());
@@ -696,6 +1105,7 @@
                     attendanceText: attendanceText,
                     message: message
                 };
+                entry.ticketCode = isDigitalTicketEnabled ? generateTicketCode(entry) : "";
 
                 if (!INVITE_CONFIG.emailService.enabled || INVITE_CONFIG.emailService.endpoint.indexOf("SEU_ID") !== -1) {
                     showFeedback("error", "Configura primeiro o endpoint gratuito (Formspree) no INVITE_CONFIG.");
@@ -706,35 +1116,53 @@
                 submitBtn.textContent = "A enviar...";
 
                 try {
+                    const body = buildFormspreePayload(entry);
                     const response = await fetch(INVITE_CONFIG.emailService.endpoint, {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
+                            "Accept": "application/json",
+                            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
                         },
-                        body: JSON.stringify({
-                            assunto: "RSVP Aniversário Leonor",
-                            nome: entry.guestName,
-                            telemovel: entry.guestPhone,
-                            pessoas: entry.guestCount,
-                            presenca: entry.attendanceText,
-                            mensagem: entry.message,
-                            enviado_em: entry.submittedAt
-                        })
+                        body: body.toString()
                     });
 
                     if (!response.ok) {
-                        throw new Error("Falha no envio");
+                        const detailedError = await getFormspreeErrorMessage(response);
+                        const statusHint = "Falha no envio (" + response.status + ")";
+                        throw new Error(detailedError || statusHint);
                     }
 
+                    storeSubmissionLock(entry);
                     form.reset();
                     document.getElementById("guestCount").value = "1";
-                    showFeedback("ok", "Confirmação enviada com sucesso por email.");
+                    updateTicketPreviewLink();
+                    showFeedback("ok", "Confirmação enviada com sucesso por email. A redirecionar...");
+                    stopBackgroundMusic();
+                    window.setTimeout(function () {
+                        window.location.href = buildThankYouUrl(entry);
+                    }, 900);
                 } catch (error) {
-                    showFeedback("error", "Não foi possível enviar. Verifica o endpoint do serviço gratuito.");
+                    const errorMessage = error && error.message ? error.message : "";
+                    const isFileProtocol = window.location.protocol === "file:";
+                    const isNetworkError = /failed to fetch|networkerror|load failed/i.test(errorMessage);
+
+                    if (isFileProtocol && isNetworkError) {
+                        showFeedback("error", "Não foi possível enviar em modo local. Abre o convite num servidor (http/https) e tenta novamente.");
+                    } else if (errorMessage) {
+                        showFeedback("error", "Não foi possível enviar: " + errorMessage);
+                    } else {
+                        showFeedback("error", "Não foi possível enviar. Verifica o endpoint do serviço gratuito.");
+                    }
+
+                    console.error("Falha no envio do formulário:", error);
                 } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = "Enviar confirmação";
+                    if (isSingleSubmissionLockEnabled && existingSubmissionLock) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = "Confirmação já enviada";
+                    } else {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = "Enviar confirmação";
+                    }
                 }
             });
 
@@ -743,6 +1171,14 @@
             setupMinnieSurprises();
             setupSiteWideConfetti();
             applyConfig();
+            existingSubmissionLock = readSubmissionLock();
+
+            if (isSingleSubmissionLockEnabled && existingSubmissionLock) {
+                applySubmissionLockState();
+            } else {
+                updateTicketPreviewLink();
+            }
+
             updateCountdown();
             window.setInterval(updateCountdown, 60000);
         })();

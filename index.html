@@ -33,13 +33,14 @@
         </div>
     </div>
 
-    <audio id="bgMusic" class="bg-music" preload="auto" loop playsinline autoplay>
+    <audio id="bgMusic" class="bg-music" preload="auto" loop playsinline>
         <source src="audio.mp3" type="audio/mpeg">
     </audio>
     <div class="audio-floating-control" aria-label="Controlo de música">
         <button id="audioToggleBtn" class="audio-toggle-btn" type="button" aria-label="Pausar música" title="Pausar música">
             <span id="audioToggleIcon" class="audio-toggle-btn__icon" aria-hidden="true">&#10074;&#10074;</span>
         </button>
+        <p id="audioUnlockHint" class="audio-unlock-hint" role="status" aria-live="polite" hidden>Toque para ativar som</p>
     </div>
     <div id="siteConfettiLayer" class="site-confetti-layer" aria-hidden="true"></div>
 
@@ -122,6 +123,7 @@
 
                         <div class="actions">
                             <button type="submit" class="btn-primary" id="submitBtn">Enviar confirmação</button>
+                            <a id="ticketPreviewLink" class="btn-secondary btn-action-link btn-ticket-preview" href="#" hidden aria-disabled="true">Pré-visualizar ingresso</a>
                         </div>
 
                         <div id="formFeedback" class="feedback" role="status" aria-live="polite"></div>

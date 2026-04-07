@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obrigada pela confirmação | Aniversário da Leonor</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="shortcut icon" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --pink-main: #E65282;
+            --red-main: #C84673;
+            --ink: #1f1f24;
+            --ink-soft: #594853;
+            --cream: #fff8f2;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+        }
+
+        body {
+            font-family: "Nunito", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 8% 10%, rgba(255, 255, 255, 0.48) 0 15%, transparent 16%),
+                radial-gradient(circle at 90% 16%, rgba(255, 240, 214, 0.56) 0 16%, transparent 17%),
+                linear-gradient(145deg, #ff7ea8 0%, #ff5f91 36%, #ff8f6a 74%, #ffc979 100%);
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .thanks-confetti-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .thanks-confetti {
+            --tx: 0px;
+            --ty: -120px;
+            --rot: 0deg;
+            --confetti-color: #E65282;
+            position: absolute;
+            width: 10px;
+            height: 14px;
+            border-radius: 2px;
+            background: var(--confetti-color);
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            animation: thanksConfettiLaunch 1.25s ease-out forwards;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+        }
+
+        .thanks-confetti.is-round {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+
+        @keyframes thanksConfettiLaunch {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+            }
+
+            15% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot));
+            }
+        }
+
+        .thanks-card {
+            position: relative;
+            z-index: 20;
+            width: min(94vw, 700px);
+            border-radius: 28px;
+            padding: 34px 24px 28px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(255, 253, 251, 0.98), rgba(255, 247, 251, 0.98));
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 24px 52px rgba(125, 27, 65, 0.3);
+        }
+
+        .thanks-tag {
+            margin: 0 auto 12px;
+            width: max-content;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #fff;
+            background: linear-gradient(135deg, var(--pink-main), var(--red-main));
+        }
+
+        h1 {
+            margin: 0;
+            font-family: "Baloo 2", cursive;
+            font-size: clamp(2rem, 5.4vw, 3rem);
+            line-height: 1.08;
+            color: var(--red-main);
+        }
+
+        .thanks-subtitle {
+            margin: 12px auto 0;
+            max-width: 44ch;
+            color: var(--ink-soft);
+            font-size: 1.06rem;
+            line-height: 1.5;
+        }
+
+        .ticket-panel {
+            margin-top: 22px;
+            text-align: left;
+        }
+
+        .ticket-panel[hidden] {
+            display: none;
+        }
+
+        .ticket-card {
+            border-radius: 22px;
+            padding: 18px 16px 16px;
+            border: 1px solid rgba(230, 82, 130, 0.3);
+            background:
+                radial-gradient(circle at 94% 10%, rgba(255, 255, 255, 0.55) 0 20%, transparent 21%),
+                linear-gradient(138deg, rgba(255, 255, 255, 0.98), rgba(255, 244, 249, 0.96));
+            box-shadow: 0 14px 30px rgba(125, 27, 65, 0.16);
+            overflow: hidden;
+        }
+
+        .ticket-pill {
+            margin: 0;
+            width: max-content;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--pink-main), var(--red-main));
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .ticket-panel h2 {
+            margin: 10px 0 4px;
+            font-family: "Baloo 2", cursive;
+            font-size: 1.44rem;
+            color: var(--ink);
+        }
+
+        .ticket-event-title {
+            margin: 0;
+            color: var(--ink-soft);
+            font-weight: 700;
+            font-size: 0.97rem;
+        }
+
+        .ticket-grid {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .ticket-item {
+            border-radius: 12px;
+            padding: 9px 10px;
+            border: 1px solid #ffd8e6;
+            background: rgba(255, 255, 255, 0.88);
+        }
+
+        .ticket-item span {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #856574;
+        }
+
+        .ticket-item strong {
+            display: block;
+            margin-top: 3px;
+            color: #2d2831;
+            line-height: 1.35;
+            word-break: break-word;
+        }
+
+        .ticket-item--full {
+            grid-column: 1 / -1;
+        }
+
+        .ticket-divider {
+            margin-top: 12px;
+            border-top: 2px dashed #f4a9c4;
+        }
+
+        .ticket-code-label {
+            margin: 12px 0 4px;
+            color: #70505f;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .ticket-code {
+            margin: 0;
+            font-family: "Courier New", monospace;
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: var(--red-main);
+            letter-spacing: 0.06em;
+        }
+
+        .ticket-actions {
+            margin-top: 10px;
+        }
+
+        .calendar-panel {
+            margin-top: 22px;
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(230, 82, 130, 0.24);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 244, 250, 0.9));
+        }
+
+        .calendar-panel h2 {
+            margin: 0 0 6px;
+            font-family: "Baloo 2", cursive;
+            font-size: 1.44rem;
+            color: var(--ink);
+        }
+
+        .calendar-panel p {
+            margin: 0;
+            color: var(--ink-soft);
+        }
+
+        .thanks-actions {
+            margin-top: 16px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .btn {
+            text-decoration: none;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-family: "Nunito", sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.18s ease, filter 0.18s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+        }
+
+        .btn-primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--pink-main), var(--red-main));
+            box-shadow: 0 12px 24px rgba(198, 70, 115, 0.28);
+        }
+
+        .btn-secondary {
+            color: var(--ink);
+            background: var(--cream);
+            border: 1px solid #f6bfd2;
+        }
+
+        .back-link {
+            margin-top: 16px;
+            display: inline-block;
+            color: var(--red-main);
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 720px) {
+            .thanks-card {
+                border-radius: 22px;
+                padding: 28px 16px 22px;
+            }
+
+            .ticket-card {
+                border-radius: 18px;
+                padding: 14px 12px;
+            }
+
+            .ticket-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-panel {
+                padding: 14px;
+            }
+
+            .btn {
+                font-size: 0.96rem;
+                border-radius: 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .btn {
+                transition: none;
+            }
+
+            .thanks-confetti {
+                animation-duration: 0.9s;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="thanksConfettiLayer" class="thanks-confetti-layer" aria-hidden="true"></div>
+
+    <main class="thanks-card" aria-labelledby="thanksTitle">
+        <p class="thanks-tag">Confirmação recebida</p>
+        <h1 id="thanksTitle">Obrigada pela tua resposta.</h1>
+        <p id="thanksSubtitle" class="thanks-subtitle">Estamos muito felizes por celebrar contigo este primeiro
+            aniversário.</p>
+
+        <section id="ticketPanel" class="ticket-panel" aria-labelledby="ticketTitle" hidden>
+            <div id="ticketCard" class="ticket-card" aria-label="Ingresso digital da festa">
+                <p class="ticket-pill">Ingresso digital</p>
+                <h2 id="ticketTitle">Bilhete de entrada</h2>
+                <p id="ticketEventTitle" class="ticket-event-title">A Leonor faz 1 aninho</p>
+
+                <div class="ticket-grid">
+                    <div class="ticket-item">
+                        <span>Nome</span>
+                        <strong id="ticketGuestName">Convidado(a)</strong>
+                    </div>
+                    <div class="ticket-item">
+                        <span>Pessoas</span>
+                        <strong id="ticketGuestCount">1 pessoa</strong>
+                    </div>
+                    <div class="ticket-item">
+                        <span>Data</span>
+                        <strong id="ticketDate">Sábado, 9 de Maio</strong>
+                    </div>
+                    <div class="ticket-item">
+                        <span>Hora</span>
+                        <strong id="ticketTime">15h30</strong>
+                    </div>
+                    <div class="ticket-item ticket-item--full">
+                        <span>Local</span>
+                        <strong id="ticketLocation">Av. Xanana Gusmao 369, 4460-840 Custoias - Matosinhos</strong>
+                    </div>
+                </div>
+
+                <div class="ticket-divider" aria-hidden="true"></div>
+                <p class="ticket-code-label">Código do ingresso</p>
+                <p id="ticketCode" class="ticket-code">LEO-GUE01-00000000</p>
+            </div>
+
+            <div class="thanks-actions ticket-actions">
+                <button id="downloadTicketPngBtn" class="btn btn-primary" type="button">Descarregar ingresso (PNG)</button>
+            </div>
+        </section>
+
+        <section class="calendar-panel" aria-labelledby="calendarTitle">
+            <h2 id="calendarTitle">Adicionar ao calendário</h2>
+            <p>Guarda já a data para não perderes a festa da Leonor.</p>
+
+            <div class="thanks-actions">
+                <a id="googleCalendarLink" class="btn btn-primary" href="#" target="_blank"
+                    rel="noopener noreferrer">Adicionar no Google Calendar</a>
+                <button id="downloadIcsBtn" class="btn btn-secondary" type="button">Descarregar para Apple/Outlook
+                    (.ics)</button>
+            </div>
+        </section>
+
+        <a class="back-link" href="index.html">Voltar ao convite</a>
+    </main>
+
+    <script>
+        (function () {
+            const EVENT = {
+                title: "Aniversario da Leonor - 1 ano",
+                description: "Junta-te a nos para celebrar o primeiro aniversario da Leonor.",
+                location: "Av. Xanana Gusmao 369, 4460-840 Custoias - Matosinhos",
+                startIso: "2026-05-09T15:30:00+01:00",
+                durationMinutes: 180
+            };
+
+            const CONFETTI_COLORS = ["#E65282", "#C84673", "#ffd76d", "#ffffff", "#f4a9c4"];
+            const confettiLayer = document.getElementById("thanksConfettiLayer");
+            const titleEl = document.getElementById("thanksTitle");
+            const subtitleEl = document.getElementById("thanksSubtitle");
+            const ticketPanel = document.getElementById("ticketPanel");
+            const ticketGuestNameEl = document.getElementById("ticketGuestName");
+            const ticketGuestCountEl = document.getElementById("ticketGuestCount");
+            const ticketDateEl = document.getElementById("ticketDate");
+            const ticketTimeEl = document.getElementById("ticketTime");
+            const ticketLocationEl = document.getElementById("ticketLocation");
+            const ticketCodeEl = document.getElementById("ticketCode");
+            const ticketEventTitleEl = document.getElementById("ticketEventTitle");
+            const googleCalendarLink = document.getElementById("googleCalendarLink");
+            const downloadIcsBtn = document.getElementById("downloadIcsBtn");
+            const downloadTicketPngBtn = document.getElementById("downloadTicketPngBtn");
+            const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+            function removeElementLater(node, delayMs) {
+                window.setTimeout(function () {
+                    if (node && node.parentNode) {
+                        node.parentNode.removeChild(node);
+                    }
+                }, delayMs);
+            }
+
+            function spawnConfettiBurst(x, y, amount, spreadPx) {
+                if (!confettiLayer) {
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+                const piecesToCreate = prefersReducedMotion ? Math.min(12, amount) : amount;
+
+                for (let i = 0; i < piecesToCreate; i += 1) {
+                    const piece = document.createElement("span");
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 50 + Math.random() * spreadPx;
+                    const dx = Math.cos(angle) * distance;
+                    const dy = (Math.sin(angle) * distance) - (24 + Math.random() * 30);
+                    const rotation = Math.round((Math.random() * 720) - 360);
+
+                    piece.className = "thanks-confetti" + (Math.random() > 0.64 ? " is-round" : "");
+                    piece.style.left = x.toFixed(2) + "px";
+                    piece.style.top = y.toFixed(2) + "px";
+                    piece.style.setProperty("--tx", dx.toFixed(2) + "px");
+                    piece.style.setProperty("--ty", dy.toFixed(2) + "px");
+                    piece.style.setProperty("--rot", rotation + "deg");
+                    piece.style.setProperty("--confetti-color", CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)]);
+                    piece.style.animationDelay = (Math.random() * 0.08).toFixed(2) + "s";
+
+                    fragment.appendChild(piece);
+                    removeElementLater(piece, 1400);
+                }
+
+                confettiLayer.appendChild(fragment);
+            }
+
+            function launchWelcomeConfetti() {
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight * 0.32;
+
+                spawnConfettiBurst(centerX, centerY, 34, 170);
+                window.setTimeout(function () {
+                    spawnConfettiBurst(window.innerWidth * 0.24, window.innerHeight * 0.28, 20, 130);
+                    spawnConfettiBurst(window.innerWidth * 0.76, window.innerHeight * 0.28, 20, 130);
+                }, 140);
+            }
+
+            function formatCalendarDate(date) {
+                return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+            }
+
+            function escapeIcsText(value) {
+                return String(value)
+                    .replace(/\\/g, "\\\\")
+                    .replace(/\n/g, "\\n")
+                    .replace(/,/g, "\\,")
+                    .replace(/;/g, "\\;");
+            }
+
+            function buildGoogleCalendarUrl(startDate, endDate) {
+                const params = new URLSearchParams({
+                    action: "TEMPLATE",
+                    text: EVENT.title,
+                    dates: formatCalendarDate(startDate) + "/" + formatCalendarDate(endDate),
+                    details: EVENT.description,
+                    location: EVENT.location
+                });
+
+                return "https://calendar.google.com/calendar/render?" + params.toString();
+            }
+
+            function buildIcsContent(startDate, endDate) {
+                const uid = Date.now() + "@aniversario-leonor";
+
+                return [
+                    "BEGIN:VCALENDAR",
+                    "VERSION:2.0",
+                    "PRODID:-//Aniversario Leonor//PT",
+                    "CALSCALE:GREGORIAN",
+                    "METHOD:PUBLISH",
+                    "BEGIN:VEVENT",
+                    "UID:" + uid,
+                    "DTSTAMP:" + formatCalendarDate(new Date()),
+                    "DTSTART:" + formatCalendarDate(startDate),
+                    "DTEND:" + formatCalendarDate(endDate),
+                    "SUMMARY:" + escapeIcsText(EVENT.title),
+                    "DESCRIPTION:" + escapeIcsText(EVENT.description),
+                    "LOCATION:" + escapeIcsText(EVENT.location),
+                    "END:VEVENT",
+                    "END:VCALENDAR"
+                ].join("\r\n");
+            }
+
+            function normalizeGuestCount(value) {
+                const parsed = Number(value);
+
+                if (!Number.isFinite(parsed)) {
+                    return 1;
+                }
+
+                return Math.max(1, Math.min(20, Math.round(parsed)));
+            }
+
+            function createTicketHashSeed(value) {
+                let hash = 0;
+
+                for (let index = 0; index < value.length; index += 1) {
+                    hash = ((hash * 31) + value.charCodeAt(index)) % 1679616;
+                }
+
+                return hash.toString(36).toUpperCase().padStart(4, "0");
+            }
+
+            function buildTicketCode(guestName, guestCount, attendance) {
+                const safeName = String(guestName || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+                const namePart = (safeName || "GUEST").slice(0, 3).padEnd(3, "X");
+                const countPart = String(normalizeGuestCount(guestCount)).padStart(2, "0");
+                const hashSeed = createTicketHashSeed([safeName, countPart, String(attendance || ""), EVENT.startIso].join("|"));
+
+                return "LEO-" + namePart + countPart + "-" + hashSeed;
+            }
+
+            function getTicketContextFromQuery() {
+                const params = new URLSearchParams(window.location.search);
+                const attendance = (params.get("presenca") || "").trim();
+                const ticketEnabledByQuery = params.get("ingressoAtivo");
+                const isDigitalTicketEnabled = ticketEnabledByQuery === null ? true : ticketEnabledByQuery === "1";
+                const guestName = (params.get("nome") || "").trim() || "Convidado(a)";
+                const guestCount = normalizeGuestCount(params.get("pessoas"));
+                const eventTitle = (params.get("evento") || EVENT.title).trim();
+                const eventDate = (params.get("dataEvento") || "Sábado, 9 de Maio").trim();
+                const eventTime = (params.get("horaEvento") || "15h30").trim();
+                const eventLocation = (params.get("localEvento") || EVENT.location).trim();
+                const ticketCode = isDigitalTicketEnabled
+                    ? ((params.get("ingresso") || "").trim() || buildTicketCode(guestName, guestCount, attendance)).toUpperCase()
+                    : "";
+
+                return {
+                    attendance: attendance,
+                    guestName: guestName,
+                    guestCount: guestCount,
+                    eventTitle: eventTitle,
+                    eventDate: eventDate,
+                    eventTime: eventTime,
+                    eventLocation: eventLocation,
+                    ticketCode: ticketCode,
+                    hasTicket: isDigitalTicketEnabled && (attendance === "coming" || attendance === "maybe")
+                };
+            }
+
+            function renderTicketPanel(ticketContext) {
+                if (!ticketPanel) {
+                    return;
+                }
+
+                if (!ticketContext.hasTicket) {
+                    ticketPanel.hidden = true;
+                    return;
+                }
+
+                ticketPanel.hidden = false;
+
+                if (ticketGuestNameEl) {
+                    ticketGuestNameEl.textContent = ticketContext.guestName;
+                }
+
+                if (ticketGuestCountEl) {
+                    ticketGuestCountEl.textContent = ticketContext.guestCount + (ticketContext.guestCount === 1 ? " pessoa" : " pessoas");
+                }
+
+                if (ticketDateEl) {
+                    ticketDateEl.textContent = ticketContext.eventDate;
+                }
+
+                if (ticketTimeEl) {
+                    ticketTimeEl.textContent = ticketContext.eventTime;
+                }
+
+                if (ticketLocationEl) {
+                    ticketLocationEl.textContent = ticketContext.eventLocation;
+                }
+
+                if (ticketCodeEl) {
+                    ticketCodeEl.textContent = ticketContext.ticketCode;
+                }
+
+                if (ticketEventTitleEl) {
+                    ticketEventTitleEl.textContent = ticketContext.eventTitle;
+                }
+            }
+
+            function drawRoundedRect(context, x, y, width, height, radius) {
+                const safeRadius = Math.min(radius, width / 2, height / 2);
+
+                context.beginPath();
+                context.moveTo(x + safeRadius, y);
+                context.lineTo(x + width - safeRadius, y);
+                context.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+                context.lineTo(x + width, y + height - safeRadius);
+                context.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
+                context.lineTo(x + safeRadius, y + height);
+                context.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
+                context.lineTo(x, y + safeRadius);
+                context.quadraticCurveTo(x, y, x + safeRadius, y);
+                context.closePath();
+            }
+
+            function wrapCanvasText(context, text, maxWidth) {
+                const words = String(text).split(/\s+/).filter(Boolean);
+                const lines = [];
+                let currentLine = "";
+
+                words.forEach(function (word) {
+                    const testLine = currentLine ? currentLine + " " + word : word;
+
+                    if (context.measureText(testLine).width <= maxWidth) {
+                        currentLine = testLine;
+                    } else {
+                        if (currentLine) {
+                            lines.push(currentLine);
+                        }
+                        currentLine = word;
+                    }
+                });
+
+                if (currentLine) {
+                    lines.push(currentLine);
+                }
+
+                return lines.length > 0 ? lines : [""];
+            }
+
+            function createTicketCanvas(ticketContext) {
+                const canvas = document.createElement("canvas");
+                const context = canvas.getContext("2d");
+
+                canvas.width = 1480;
+                canvas.height = 860;
+
+                if (!context) {
+                    return canvas;
+                }
+
+                const backgroundGradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+                backgroundGradient.addColorStop(0, "#ff7ea8");
+                backgroundGradient.addColorStop(0.55, "#ff5f91");
+                backgroundGradient.addColorStop(1, "#ffc979");
+                context.fillStyle = backgroundGradient;
+                context.fillRect(0, 0, canvas.width, canvas.height);
+
+                drawRoundedRect(context, 90, 86, 1300, 688, 44);
+                context.fillStyle = "rgba(255, 255, 255, 0.96)";
+                context.fill();
+
+                context.lineWidth = 2;
+                context.strokeStyle = "rgba(230, 82, 130, 0.28)";
+                context.stroke();
+
+                context.fillStyle = "#C84673";
+                context.font = "700 54px Nunito, Arial, sans-serif";
+                context.fillText("Ingresso Digital", 150, 188);
+
+                context.fillStyle = "#403241";
+                context.font = "700 40px Nunito, Arial, sans-serif";
+                context.fillText(ticketContext.eventTitle, 150, 246);
+
+                context.fillStyle = "#7f6474";
+                context.font = "700 23px Nunito, Arial, sans-serif";
+                context.fillText("Nome", 150, 312);
+                context.fillText("Pessoas", 780, 312);
+
+                context.fillStyle = "#1f1f24";
+                context.font = "700 34px Nunito, Arial, sans-serif";
+                context.fillText(ticketContext.guestName, 150, 352);
+                context.fillText(String(ticketContext.guestCount), 780, 352);
+
+                context.fillStyle = "#7f6474";
+                context.font = "700 23px Nunito, Arial, sans-serif";
+                context.fillText("Data", 150, 424);
+                context.fillText("Hora", 520, 424);
+
+                context.fillStyle = "#1f1f24";
+                context.font = "700 30px Nunito, Arial, sans-serif";
+                context.fillText(ticketContext.eventDate, 150, 462);
+                context.fillText(ticketContext.eventTime, 520, 462);
+
+                context.fillStyle = "#7f6474";
+                context.font = "700 23px Nunito, Arial, sans-serif";
+                context.fillText("Local", 150, 532);
+
+                context.fillStyle = "#1f1f24";
+                context.font = "700 28px Nunito, Arial, sans-serif";
+                const locationLines = wrapCanvasText(context, ticketContext.eventLocation, 1060);
+
+                locationLines.slice(0, 2).forEach(function (line, index) {
+                    context.fillText(line, 150, 572 + (index * 36));
+                });
+
+                context.strokeStyle = "#f4a9c4";
+                context.setLineDash([8, 8]);
+                context.lineWidth = 2;
+                context.beginPath();
+                context.moveTo(150, 650);
+                context.lineTo(1240, 650);
+                context.stroke();
+                context.setLineDash([]);
+
+                context.fillStyle = "#7f6474";
+                context.font = "700 20px Nunito, Arial, sans-serif";
+                context.fillText("Codigo do ingresso", 150, 694);
+
+                context.fillStyle = "#C84673";
+                context.font = "700 46px Courier New, monospace";
+                context.fillText(ticketContext.ticketCode, 150, 744);
+
+                return canvas;
+            }
+
+            async function downloadTicketAsPng(ticketContext) {
+                if (!ticketContext.hasTicket) {
+                    return;
+                }
+
+                if (document.fonts && document.fonts.ready) {
+                    try {
+                        await document.fonts.ready;
+                    } catch (error) {
+                        // Ignore font loading failures and proceed with fallback fonts.
+                    }
+                }
+
+                const canvas = createTicketCanvas(ticketContext);
+                const safeCode = ticketContext.ticketCode.toLowerCase().replace(/[^a-z0-9-]/g, "");
+                const fileName = "ingresso-leonor-" + (safeCode || "festa") + ".png";
+
+                if (canvas.toBlob) {
+                    canvas.toBlob(function (blob) {
+                        if (!blob) {
+                            return;
+                        }
+
+                        const url = URL.createObjectURL(blob);
+                        const downloadLink = document.createElement("a");
+
+                        downloadLink.href = url;
+                        downloadLink.download = fileName;
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+
+                        window.setTimeout(function () {
+                            URL.revokeObjectURL(url);
+                        }, 800);
+                    }, "image/png");
+                    return;
+                }
+
+                const fallbackLink = document.createElement("a");
+                fallbackLink.href = canvas.toDataURL("image/png");
+                fallbackLink.download = fileName;
+                document.body.appendChild(fallbackLink);
+                fallbackLink.click();
+                document.body.removeChild(fallbackLink);
+            }
+
+            function setupTicketDownload(ticketContext) {
+                if (!downloadTicketPngBtn) {
+                    return;
+                }
+
+                if (!ticketContext.hasTicket) {
+                    downloadTicketPngBtn.disabled = true;
+                    return;
+                }
+
+                downloadTicketPngBtn.disabled = false;
+                downloadTicketPngBtn.addEventListener("click", function () {
+                    downloadTicketAsPng(ticketContext);
+                });
+            }
+
+            function personalizeThankYou(ticketContext) {
+                const guestName = ticketContext.guestName;
+                const attendance = ticketContext.attendance;
+
+                if (guestName) {
+                    titleEl.textContent = "Obrigada, " + guestName + ".";
+                }
+
+                if (attendance === "coming") {
+                    subtitleEl.textContent = "Que bom! Vamos adorar celebrar contigo.";
+                    return;
+                }
+
+                if (attendance === "maybe") {
+                    subtitleEl.textContent = "Ficamos a torcer para que consigas vir. Obrigada por responderes!";
+                    return;
+                }
+
+                if (attendance === "not-coming") {
+                    subtitleEl.textContent = "Obrigada pelo carinho da resposta. Vais fazer falta nesta festa.";
+                }
+            }
+
+            function setupCalendarActions() {
+                const startDate = new Date(EVENT.startIso);
+                const endDate = new Date(startDate.getTime() + (EVENT.durationMinutes * 60 * 1000));
+
+                if (googleCalendarLink) {
+                    googleCalendarLink.href = buildGoogleCalendarUrl(startDate, endDate);
+                }
+
+                if (downloadIcsBtn) {
+                    downloadIcsBtn.addEventListener("click", function () {
+                        const icsContent = buildIcsContent(startDate, endDate);
+                        const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+                        const url = URL.createObjectURL(blob);
+                        const downloadLink = document.createElement("a");
+
+                        downloadLink.href = url;
+                        downloadLink.download = "aniversario-leonor.ics";
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+
+                        window.setTimeout(function () {
+                            URL.revokeObjectURL(url);
+                        }, 800);
+                    });
+                }
+            }
+
+            const ticketContext = getTicketContextFromQuery();
+
+            personalizeThankYou(ticketContext);
+            renderTicketPanel(ticketContext);
+            setupTicketDownload(ticketContext);
+            setupCalendarActions();
+            launchWelcomeConfetti();
+
+            document.addEventListener("click", function (event) {
+                if (event.target && typeof event.target.closest === "function" && event.target.closest("button, a")) {
+                    return;
+                }
+
+                spawnConfettiBurst(event.clientX || (window.innerWidth / 2), event.clientY || (window.innerHeight / 2), 16, 120);
+            }, { passive: true });
+        })();
+    </script>
+</body>
+
+</html>

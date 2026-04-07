@@ -50,6 +50,36 @@
             top: max(12px, env(safe-area-inset-top));
             right: max(12px, env(safe-area-inset-right));
             z-index: 2900;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .audio-unlock-hint {
+            margin: 0;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            background: rgba(31, 31, 36, 0.78);
+            color: #fff;
+            font-size: 0.74rem;
+            font-weight: 700;
+            line-height: 1.2;
+            box-shadow: 0 10px 20px rgba(31, 31, 36, 0.24);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .audio-unlock-hint.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .audio-unlock-hint[hidden] {
+            display: none;
         }
 
         .site-confetti-layer {
@@ -674,6 +704,21 @@
             transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
         }
 
+        .btn-action-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            padding: 11px 16px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            font-family: "Baloo 2", cursive;
+            letter-spacing: 0.02em;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+        }
+
         .btn-primary {
             background: linear-gradient(122deg, #f07ca3 0%, var(--pink-main) 52%, var(--red-main) 100%);
             color: #fff;
@@ -685,6 +730,17 @@
             background: #1f1f24;
             color: #fff;
             flex: 1 1 180px;
+        }
+
+        .btn-ticket-preview[hidden] {
+            display: none !important;
+        }
+
+        .btn-action-link[aria-disabled="true"] {
+            pointer-events: none;
+            opacity: 0.62;
+            box-shadow: none;
+            transform: none;
         }
 
         .map-link {
@@ -723,6 +779,11 @@
         }
 
         button:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.03);
+        }
+
+        .btn-action-link:hover {
             transform: translateY(-2px);
             filter: brightness(1.03);
         }
@@ -1015,6 +1076,11 @@
             .audio-toggle-btn {
                 width: 44px;
                 height: 44px;
+            }
+
+            .audio-unlock-hint {
+                font-size: 0.72rem;
+                padding: 6px 9px;
             }
 
             .card {
