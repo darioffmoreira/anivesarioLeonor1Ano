@@ -1,0 +1,106 @@
+﻿@media (prefers-reduced-motion: reduce) {
+
+    .first-visit-loader,
+    .first-visit-loader__card,
+    .first-visit-loader__bow,
+    .first-visit-loader__bow::before,
+    .first-visit-loader__bow::after,
+    .first-visit-loader__bow span,
+    .first-visit-loader__dots span,
+    .minnie-frame-wrap.is-celebrating,
+    .site-confetti,
+    .minnie-confetti,
+    .minnie-fun-message {
+        animation: none;
+        transition: none;
+    }
+
+    .minnie-confetti {
+        opacity: 0.9;
+        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)));
+    }
+
+    .site-confetti {
+        opacity: 0.9;
+        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)));
+    }
+
+    .minnie-fun-message {
+        opacity: 1;
+        transform: translate(-50%, -8px) scale(1);
+    }
+}
+
+@media (max-width: 820px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .details,
+    .form-card {
+        grid-column: auto;
+    }
+
+    .minnie-frame {
+        height: clamp(310px, 82vw, 400px);
+    }
+
+    .minnie-frame-wrap {
+        margin-top: 24px;
+    }
+
+    .map-embed {
+        height: 230px;
+    }
+}
+
+@media (max-width: 520px) {
+    .page {
+        width: min(96%, 560px);
+        margin-top: 10px;
+    }
+
+    .audio-floating-control {
+        top: auto;
+        right: max(10px, env(safe-area-inset-right));
+        bottom: max(10px, env(safe-area-inset-bottom));
+    }
+
+    .audio-toggle-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .audio-unlock-hint {
+        font-size: 0.72rem;
+        padding: 6px 9px;
+    }
+
+    .card {
+        padding: 22px 14px 18px;
+    }
+
+    .fields-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-countdown {
+        padding: 12px 10px;
+        font-size: 0.95rem;
+    }
+
+    .minnie-frame {
+        height: clamp(280px, 88vw, 360px);
+    }
+
+    .minnie-frame-wrap {
+        margin-top: 20px;
+    }
+
+    .minnie-fun-message {
+        font-size: 0.77rem;
+        padding: 7px 10px;
+        top: 12%;
+    }
+
+}

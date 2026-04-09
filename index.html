@@ -14,6 +14,7 @@
         href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="assets/css/convite.css">
+    <link rel="stylesheet" href="assets/css/party-runner.css">
     <script src="assets/js/site-mode.js"></script>
 </head>
 
@@ -35,7 +36,7 @@
         </div>
     </div>
 
-    <audio id="bgMusic" class="bg-music" preload="auto" loop playsinline>
+    <audio id="bgMusic" class="bg-music" preload="auto" playsinline>
         <source src="assets/media/audio.mp3" type="audio/mpeg">
     </audio>
     <div class="audio-floating-control" aria-label="Controlo de música">
@@ -156,7 +157,7 @@
                                 required></textarea>
                         </div>
 
-                        <div style="display:none !important;" aria-hidden="true">
+                        <div class="bot-trap-field" aria-hidden="true">
                             <label for="botTrap">Não preencher este campo</label>
                             <input id="botTrap" name="_gotcha" type="text" tabindex="-1" autocomplete="off">
                         </div>
@@ -169,10 +170,36 @@
                     </form>
                 </section>
             </div>
+
+            <section class="party-game-card fade-up delay-2" aria-labelledby="party-game-title">
+                <h2 id="party-game-title">Brincadeira: Salto da Festa</h2>
+                <p class="party-game-intro">Um mini-jogo para entrar no clima da festa. Salta e evita os obstáculos.</p>
+
+                <div class="party-game-controls" role="group" aria-label="Painel do jogo">
+                    <p class="party-game-metric">Pontos: <strong id="partyRunnerScore">0</strong></p>
+                    <p class="party-game-metric">Recorde local: <strong id="partyRunnerBest">0</strong></p>
+                    <button id="partyRunnerActionBtn" class="btn-secondary party-game-action" type="button">Começar</button>
+                </div>
+
+                <div id="partyRunnerStage" class="party-game-stage" tabindex="0" aria-label="Área da brincadeira">
+                    <canvas id="partyRunnerCanvas" class="party-runner-canvas" width="760" height="220" aria-label="Jogo de obstáculos"></canvas>
+                    <div class="party-runner-overlay" aria-live="polite" aria-atomic="true">
+                        <p id="partyRunnerStatus" class="party-runner-status">Carrega em Começar para iniciar.</p>
+                        <p class="party-runner-hint">Computador: Espaço ou seta para cima. Telemóvel: toca na área do jogo.</p>
+                    </div>
+                </div>
+            </section>
         </section>
     </main>
 
+    <script src="assets/js/pt-pt-config.js"></script>
+    <script src="assets/js/convite-shared.js"></script>
+    <script src="assets/js/convite-audio-loader.js"></script>
+    <script src="assets/js/convite-minnie.js"></script>
+    <script src="assets/js/convite-form.js"></script>
+    <script src="assets/js/convite-init.js"></script>
     <script src="assets/js/convite.js"></script>
+    <script src="assets/js/party-runner.js"></script>
 </body>
 
 </html>

@@ -1,0 +1,188 @@
+﻿.fade-up {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: reveal 0.6s ease forwards;
+}
+
+.delay-1 {
+    animation-delay: 0.12s;
+}
+
+.delay-2 {
+    animation-delay: 0.22s;
+}
+
+@keyframes riseIn {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.99);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes reveal {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes countdownPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 10px 26px rgba(230, 82, 130, 0.35);
+    }
+
+    50% {
+        transform: scale(1.015);
+        box-shadow: 0 14px 30px rgba(230, 82, 130, 0.43);
+    }
+}
+
+@keyframes countdownSheen {
+
+    0%,
+    55%,
+    100% {
+        transform: translateX(-120%);
+    }
+
+    22% {
+        transform: translateX(120%);
+    }
+}
+
+@keyframes loaderCardPop {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.94);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes loaderFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes loaderBalloonLeft {
+
+    0%,
+    100% {
+        transform: rotate(-9deg) translateY(0);
+    }
+
+    50% {
+        transform: rotate(-3deg) translateY(-3px);
+    }
+}
+
+@keyframes loaderBalloonRight {
+
+    0%,
+    100% {
+        transform: rotate(9deg) translateY(0);
+    }
+
+    50% {
+        transform: rotate(3deg) translateY(-3px);
+    }
+}
+
+@keyframes loaderTwinkle {
+
+    0%,
+    100% {
+        transform: scale(0.7);
+        opacity: 0.4;
+    }
+
+    50% {
+        transform: scale(1.12);
+        opacity: 1;
+    }
+}
+
+@keyframes loaderDotBounce {
+
+    0%,
+    80%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.8;
+    }
+
+    40% {
+        transform: translateY(-8px);
+        opacity: 1;
+    }
+}
+
+@keyframes minnieMessagePop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 8px) scale(0.88);
+    }
+
+    14% {
+        opacity: 1;
+        transform: translate(-50%, -4px) scale(1.03);
+    }
+
+    82% {
+        opacity: 1;
+        transform: translate(-50%, -10px) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -16px) scale(0.97);
+    }
+}
+
+@keyframes minnieConfettiBurst {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.45) rotate(0deg);
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot));
+    }
+}
+
+@keyframes minnieWrapPop {
+    0% {
+        transform: scale(1);
+    }
+
+    45% {
+        transform: scale(1.03);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

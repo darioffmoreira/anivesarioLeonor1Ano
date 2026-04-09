@@ -1,0 +1,15 @@
+{
+  "name": "aniversario-leonor-1-ano",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static invitation site with RSVP form and E2E tests.",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2",
+    "http-server": "^14.1.1"
+  }
+}

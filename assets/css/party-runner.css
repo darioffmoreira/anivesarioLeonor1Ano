@@ -1,0 +1,161 @@
+.party-game-card {
+    margin-top: 18px;
+    background: linear-gradient(170deg, #fffdf8 0%, #fff7fb 100%);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 208, 226, 0.9);
+    box-shadow: 0 14px 32px rgba(125, 25, 65, 0.1);
+    padding: 18px;
+    position: relative;
+    z-index: 1;
+}
+
+.party-game-card h2 {
+    margin: 0;
+    font-family: "Baloo 2", cursive;
+    font-size: 1.56rem;
+    color: #25212a;
+}
+
+.party-game-card h2::after {
+    content: "";
+    display: block;
+    width: 54px;
+    height: 5px;
+    border-radius: 999px;
+    margin-top: 4px;
+    background: linear-gradient(120deg, var(--pink-main), var(--gold-soft));
+}
+
+.party-game-intro {
+    margin: 10px 0 0;
+    color: #524552;
+    font-size: 0.95rem;
+}
+
+.party-game-controls {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.party-game-metric {
+    margin: 0;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 201, 221, 0.92);
+    background: #fff;
+    color: #332837;
+    font-weight: 800;
+    font-size: 0.88rem;
+}
+
+.party-game-action {
+    flex: 0 0 auto;
+    min-width: 124px;
+    margin-left: auto;
+    padding: 10px 14px;
+}
+
+.party-game-stage {
+    margin-top: 12px;
+    position: relative;
+    border-radius: 14px;
+    border: 1px solid #ffcadf;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 12% 16%, rgba(255, 255, 255, 0.6) 0 18%, transparent 19%),
+        linear-gradient(180deg, #ffe8f2 0%, #ffddea 42%, #ffcddd 100%);
+    box-shadow: 0 12px 24px rgba(201, 45, 103, 0.18);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+.party-game-stage:focus-visible {
+    box-shadow: 0 0 0 3px rgba(230, 82, 130, 0.36), 0 12px 24px rgba(201, 45, 103, 0.18);
+}
+
+.party-runner-canvas {
+    width: 100%;
+    height: 220px;
+    display: block;
+}
+
+.party-runner-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    display: grid;
+    gap: 2px;
+    padding: 10px 12px;
+    pointer-events: none;
+}
+
+.party-runner-status,
+.party-runner-hint {
+    margin: 0;
+    width: max-content;
+    max-width: 100%;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: rgba(31, 31, 36, 0.72);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.party-runner-hint {
+    background: rgba(58, 52, 64, 0.64);
+    font-size: 0.71rem;
+}
+
+.party-game-stage[data-state="running"] .party-runner-status,
+.party-game-stage[data-state="running"] .party-runner-hint {
+    opacity: 0.86;
+}
+
+.party-game-stage[data-state="game-over"] .party-runner-status {
+    background: rgba(177, 19, 63, 0.86);
+}
+
+.party-game-stage[data-state="paused"] .party-runner-status {
+    background: rgba(90, 57, 76, 0.84);
+}
+
+@media (max-width: 820px) {
+    .party-game-action {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 520px) {
+    .party-game-card {
+        padding: 15px;
+    }
+
+    .party-game-controls {
+        gap: 6px;
+    }
+
+    .party-game-metric {
+        font-size: 0.82rem;
+        padding: 6px 9px;
+    }
+
+    .party-game-action {
+        min-width: 100%;
+    }
+
+    .party-runner-canvas {
+        height: 190px;
+    }
+
+    .party-runner-status,
+    .party-runner-hint {
+        font-size: 0.69rem;
+    }
+}
