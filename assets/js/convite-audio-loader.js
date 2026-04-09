@@ -111,7 +111,8 @@
 
         const safeTarget = Math.max(0, Math.min(1, targetVolume));
         const startVolume = Number.isFinite(elements.bgMusic.volume) ? elements.bgMusic.volume : 0;
-        const delta = safeTarget - startVolume;
+        const safeStart = Math.max(0, Math.min(1, startVolume));
+        const delta = safeTarget - safeStart;
 
         clearAudioFade();
 
@@ -129,9 +130,12 @@
 
         state.audioFadeTimer = window.setInterval(function () {
             currentStep += 1;
-            elements.bgMusic.volume = startVolume + ((delta * currentStep) / totalSteps);
+            const progress = Math.min(currentStep / totalSteps, 1);
+            const nextVolume = safeStart + (delta * progress);
 
-            if (currentStep >= totalSteps) {
+            elements.bgMusic.volume = Math.max(0, Math.min(1, nextVolume));
+
+            if (progress >= 1) {
                 clearAudioFade();
                 elements.bgMusic.volume = safeTarget;
 
@@ -447,4 +451,4 @@
         updateAudioToggleState: updateAudioToggleState,
         hideAudioUnlockHint: hideAudioUnlockHint
     };
-})();
+})(window.LEONOR_INVITE);
