@@ -77,10 +77,34 @@
                         <div><strong id="timezoneLabel">Fuso horário:</strong> <span id="timezoneValue">Europe/Lisbon</span></div>
                     </div>
                     <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
-                        <div><strong id="quickContactLabel">Contacto rápido:</strong> <span id="quickContactValue">91xxxxxxx (telemóvel/WhatsApp)</span></div>
+                        <div class="quick-contact-inline">
+                            <strong id="quickContactLabel">Contacto rápido:</strong>
+                            <span class="quick-contact-actions" role="group" aria-label="Ações de contacto rápido">
+                                    <a id="quickContactSms" class="quick-contact-action quick-contact-action--icon" href="sms:+351912686014" aria-label="Enviar SMS para +351 912 686 014" title="SMS">
+                                        <svg class="quick-contact-icon quick-contact-icon--sms" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 14H5.17L4 17.17V4h16v12z" />
+                                            <path d="M7 9h10v2H7zm0 3h7v2H7z" />
+                                        </svg>
+                                        <span class="sr-only">SMS</span>
+                                    </a>
+                                    <a id="quickContactCall" class="quick-contact-action quick-contact-action--icon" href="tel:+351912686014" aria-label="Ligar para +351 912 686 014" title="Ligar">
+                                        <svg class="quick-contact-icon quick-contact-icon--call" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24c1.1.36 2.28.55 3.48.55a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.85 21 3 13.15 3 3.5A1 1 0 0 1 4 2.5h3.5a1 1 0 0 1 1 1c0 1.2.19 2.38.55 3.48a1 1 0 0 1-.25 1.02L6.6 10.8z" />
+                                        </svg>
+                                        <span class="sr-only">Ligar</span>
+                                    </a>
+                                    <a id="quickContactWhatsapp" class="quick-contact-action quick-contact-action--icon" href="https://wa.me/351912686014" target="_blank" rel="noopener noreferrer" aria-label="Abrir conversa no WhatsApp" title="WhatsApp">
+                                        <svg class="quick-contact-icon quick-contact-icon--whatsapp" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path d="M12 4a8 8 0 0 0-6.98 11.9L4 20l4.23-1.01A8 8 0 1 0 12 4zm0 14.4a6.37 6.37 0 0 1-3.25-.89l-.23-.14-2.52.6.61-2.46-.15-.24A6.4 6.4 0 1 1 12 18.4z" />
+                                            <path d="M15.67 13.79c-.19-.1-1.14-.56-1.32-.62-.18-.06-.31-.1-.44.1-.13.19-.5.62-.61.75-.11.13-.22.15-.41.05-.19-.1-.79-.29-1.5-.92-.56-.5-.93-1.11-1.04-1.3-.11-.19-.01-.29.08-.38.08-.08.19-.22.28-.33.09-.11.12-.19.19-.32.06-.13.03-.24-.02-.33-.05-.1-.44-1.07-.61-1.46-.16-.39-.33-.34-.44-.35h-.38c-.13 0-.35.05-.53.24-.18.2-.69.67-.69 1.63 0 .96.71 1.89.8 2.02.1.13 1.39 2.12 3.36 2.98.47.2.84.33 1.13.42.48.15.92.13 1.27.08.39-.06 1.14-.47 1.3-.92.16-.45.16-.84.11-.92-.04-.07-.17-.12-.36-.22z" />
+                                        </svg>
+                                        <span class="sr-only">WhatsApp</span>
+                                    </a>
+                            </span>
+                        </div>
                     </div>
                     <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
-                        <div><strong id="locationLabel">Local:</strong> <span id="locationValue">Porto, Portugal</span>
+                        <div><strong id="locationLabel">Local:</strong> <a id="locationValue" class="location-link" href="https://www.google.com/maps/dir/?api=1&destination=Av.%20Xanana%20Gusmao%20369%2C%204460-840%20Custoias%20-%20Matosinhos" target="_blank" rel="noopener noreferrer" aria-label="Abrir direções no Google Maps para o local da festa">Porto, Portugal</a>
                         </div>
                     </div>
                     <div class="map-embed-wrap" aria-label="Mapa do local da festa">
@@ -112,8 +136,8 @@
 
                         <div class="fields-2">
                             <div>
-                                <label for="guestCount">Quantas pessoas?</label>
-                                <input id="guestCount" name="guestCount" type="number" min="1" max="20" value="1">
+                                <label for="guestCount">Quantas pessoas? *</label>
+                                <input id="guestCount" name="guestCount" type="number" min="1" max="20" value="1" required>
                             </div>
                             <div>
                                 <label for="attendance">Vens? *</label>

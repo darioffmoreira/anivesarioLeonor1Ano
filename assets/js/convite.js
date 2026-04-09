@@ -9,8 +9,13 @@
                 eventTimeText: "15h30",
                 eventLocationText: "Av. Xanana Gusmão 369, 4460-840 Custoias - Matosinhos",
                 quickContactText: "+351912686014",
+                quickContactPhone: "+351912686014",
+                quickContactSmsMessage: "Ola! Tenho uma duvida sobre o convite da Leonor.",
+                quickContactWhatsappMessage: "Ola! Tenho uma duvida sobre o convite da Leonor.",
+                parkingInfoText: "Estacionamento gratuito ao redor.",
                 confirmUntilText: "30 Abril",
                 mapUrl: "https://maps.app.goo.gl/zihM4u8z5jqbvsU6A",
+                mapDirectionsUrl: "https://www.google.com/maps/dir/?api=1&destination=Av.%20Xanana%20Gusmao%20369%2C%204460-840%20Custoias%20-%20Matosinhos",
                 mapEmbedUrl: "https://maps.google.com/maps?q=Av.%20Xanana%20Gusmao%20369%2C%204460-840%20Custoias%20-%20Matosinhos&z=16&output=embed",
                 backgroundMusicUrl: "assets/media/audio.mp3",
                 backgroundMusicVolume: 0.45,
@@ -786,6 +791,48 @@
                 }
             }
 
+            function buildPhoneHref(value) {
+                const normalized = String(value || "").trim().replace(/[^\d+]/g, "");
+
+                if (!normalized) {
+                    return "";
+                }
+
+                return "tel:" + normalized;
+            }
+
+            function buildWhatsAppHref(phoneValue, messageValue) {
+                const digitsOnly = keepOnlyDigits(String(phoneValue || ""));
+
+                if (!digitsOnly) {
+                    return "";
+                }
+
+                const messageText = String(messageValue || "").trim();
+
+                if (!messageText) {
+                    return "https://wa.me/" + digitsOnly;
+                }
+
+                return "https://wa.me/" + digitsOnly + "?text=" + encodeURIComponent(messageText);
+            }
+
+            function buildSmsHref(phoneValue, messageValue) {
+                const normalized = String(phoneValue || "").trim().replace(/[^\d+]/g, "");
+
+                if (!normalized) {
+                    return "";
+                }
+
+                const messageText = String(messageValue || "").trim();
+
+                if (!messageText) {
+                    return "sms:" + normalized;
+                }
+
+                return "sms:" + normalized + "?body=" + encodeURIComponent(messageText);
+            }
+
             function applyConfig() {
                 setText("themeEyebrow", INVITE_CONFIG.themeEyebrow);
                 setText("title", INVITE_CONFIG.title);
@@ -802,10 +849,13 @@
                 setText("dateValue", INVITE_CONFIG.eventDateText);
                 setText("timeValue", INVITE_CONFIG.eventTimeText);
                 setText("locationValue", INVITE_CONFIG.eventLocationText);
-                setText("quickContactValue", INVITE_CONFIG.quickContactText);
                 setText("parkingInfoValue", INVITE_CONFIG.parkingInfoText);
                 setText("confirmUntilValue", INVITE_CONFIG.confirmUntilText);
                 setText("timezoneValue", INVITE_CONFIG.eventTimezone);
+                setHref("locationValue", INVITE_CONFIG.mapDirectionsUrl || INVITE_CONFIG.mapUrl);
+                setHref("quickContactSms", buildSmsHref(INVITE_CONFIG.quickContactPhone || INVITE_CONFIG.quickContactText, INVITE_CONFIG.quickContactSmsMessage));
+                setHref("quickContactCall", buildPhoneHref(INVITE_CONFIG.quickContactPhone || INVITE_CONFIG.quickContactText));
+                setHref("quickContactWhatsapp", buildWhatsAppHref(INVITE_CONFIG.quickContactPhone || INVITE_CONFIG.quickContactText, INVITE_CONFIG.quickContactWhatsappMessage));
                 setHref("mapLink", INVITE_CONFIG.mapUrl);
                 setSrc("mapEmbed", INVITE_CONFIG.mapEmbedUrl);
             }
@@ -1023,7 +1073,7 @@
                     return;
                 }
 
-                if (!guestName || !guestPhone || !guestEmail || !attendance || !message) {
+                if (!guestName || !guestPhone || !guestEmail || !guestCount || !attendance || !message) {
                     showFeedback("error", "Preenche todos os campos obrigatórios assinalados com *.");
                     return;
                 }
