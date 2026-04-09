@@ -8,13 +8,14 @@
                 eventDateText: "Sábado, 9 de Maio",
                 eventTimeText: "15h30",
                 eventLocationText: "Av. Xanana Gusmão 369, 4460-840 Custoias - Matosinhos",
+                quickContactText: "+351912686014",
                 confirmUntilText: "30 Abril",
                 mapUrl: "https://maps.app.goo.gl/zihM4u8z5jqbvsU6A",
                 mapEmbedUrl: "https://maps.google.com/maps?q=Av.%20Xanana%20Gusmao%20369%2C%204460-840%20Custoias%20-%20Matosinhos&z=16&output=embed",
                 backgroundMusicUrl: "assets/media/audio.mp3",
                 backgroundMusicVolume: 0.45,
                 emailService: {
-                    endpoint: "https://formspree.io/f/mvzvlovk",
+                    endpoint: "https://904aad8ee6a35604b384ac2cde5a6617.m.pipedream.net",
                     enabled: true
                 },
                 features: {
@@ -25,6 +26,8 @@
                     date: "Data:",
                     time: "Hora:",
                     location: "Local:",
+                    quickContact: "Contacto rápido:",
+                    parkingInfo: "Estacionamento:",
                     confirmUntil: "Confirma até:",
                     timezone: "Fuso horário:"
                 }
@@ -37,14 +40,15 @@
             const feedbackEl = document.getElementById("formFeedback");
             const guestNameInput = document.getElementById("guestName");
             const guestPhoneInput = document.getElementById("guestPhone");
+            const guestEmailInput = document.getElementById("guestEmail");
             const guestCountInput = document.getElementById("guestCount");
             const attendanceInput = document.getElementById("attendance");
+            const botTrapInput = document.getElementById("botTrap");
             const firstVisitLoader = document.getElementById("firstVisitLoader");
             const bgMusic = document.getElementById("bgMusic");
             const audioToggleBtn = document.getElementById("audioToggleBtn");
             const audioToggleIcon = document.getElementById("audioToggleIcon");
             const audioUnlockHint = document.getElementById("audioUnlockHint");
-            const ticketPreviewLink = document.getElementById("ticketPreviewLink");
             const siteConfettiLayer = document.getElementById("siteConfettiLayer");
             const minnieFrameWrap = document.querySelector(".minnie-frame-wrap");
             const minnieSurpriseBtn = document.getElementById("minnieSurpriseBtn");
@@ -148,66 +152,6 @@
                 return "LEO-" + namePart + countPart + "-" + phonePart + hashSeed;
             }
 
-            function buildPreviewEntryFromForm() {
-                if (!isDigitalTicketEnabled) {
-                    return null;
-                }
-
-                if (!guestNameInput || !guestPhoneInput || !guestCountInput || !attendanceInput) {
-                    return null;
-                }
-
-                const guestName = guestNameInput.value.trim();
-                const guestPhone = keepOnlyDigits(guestPhoneInput.value.trim());
-                const guestCount = normalizeGuestCount(guestCountInput.value);
-                const attendance = attendanceInput.value;
-                const hasMinimumFields = guestName.length >= 2 && guestPhone.length >= 9 && !!attendance && attendance !== "not-coming";
-
-                if (!hasMinimumFields) {
-                    return null;
-                }
-
-                return {
-                    guestName: guestName,
-                    guestPhone: guestPhone,
-                    guestCount: guestCount,
-                    attendance: attendance
-                };
-            }
-
-            function deactivateTicketPreviewLink() {
-                if (!ticketPreviewLink) {
-                    return;
-                }
-
-                ticketPreviewLink.hidden = true;
-                ticketPreviewLink.href = "#";
-                ticketPreviewLink.setAttribute("aria-disabled", "true");
-            }
-
-            function updateTicketPreviewLink() {
-                if (!ticketPreviewLink) {
-                    return;
-                }
-
-                if (!isDigitalTicketEnabled || (isSingleSubmissionLockEnabled && !!existingSubmissionLock)) {
-                    deactivateTicketPreviewLink();
-                    return;
-                }
-
-                const previewEntry = buildPreviewEntryFromForm();
-
-                if (!previewEntry) {
-                    deactivateTicketPreviewLink();
-                    return;
-                }
-
-                previewEntry.ticketCode = generateTicketCode(previewEntry);
-                ticketPreviewLink.href = buildThankYouUrl(previewEntry);
-                ticketPreviewLink.hidden = false;
-                ticketPreviewLink.removeAttribute("aria-disabled");
-            }
-
             function pickRandom(list) {
                 return list[Math.floor(Math.random() * list.length)];
             }
@@ -246,28 +190,6 @@
             if (guestPhoneInput) {
                 guestPhoneInput.addEventListener("input", function () {
                     this.value = keepOnlyDigits(this.value);
-                    updateTicketPreviewLink();
-                });
-            }
-
-            if (guestNameInput) {
-                guestNameInput.addEventListener("input", updateTicketPreviewLink);
-            }
-
-            if (guestCountInput) {
-                guestCountInput.addEventListener("input", updateTicketPreviewLink);
-                guestCountInput.addEventListener("change", updateTicketPreviewLink);
-            }
-
-            if (attendanceInput) {
-                attendanceInput.addEventListener("change", updateTicketPreviewLink);
-            }
-
-            if (ticketPreviewLink) {
-                ticketPreviewLink.addEventListener("click", function (event) {
-                    if (ticketPreviewLink.getAttribute("aria-disabled") === "true") {
-                        event.preventDefault();
-                    }
                 });
             }
 
@@ -872,12 +794,16 @@
                 setText("dateLabel", INVITE_CONFIG.labels.date);
                 setText("timeLabel", INVITE_CONFIG.labels.time);
                 setText("locationLabel", INVITE_CONFIG.labels.location);
+                setText("quickContactLabel", INVITE_CONFIG.labels.quickContact);
+                setText("parkingInfoLabel", INVITE_CONFIG.labels.parkingInfo);
                 setText("confirmUntilLabel", INVITE_CONFIG.labels.confirmUntil);
                 setText("timezoneLabel", INVITE_CONFIG.labels.timezone);
 
                 setText("dateValue", INVITE_CONFIG.eventDateText);
                 setText("timeValue", INVITE_CONFIG.eventTimeText);
                 setText("locationValue", INVITE_CONFIG.eventLocationText);
+                setText("quickContactValue", INVITE_CONFIG.quickContactText);
+                setText("parkingInfoValue", INVITE_CONFIG.parkingInfoText);
                 setText("confirmUntilValue", INVITE_CONFIG.confirmUntilText);
                 setText("timezoneValue", INVITE_CONFIG.eventTimezone);
                 setHref("mapLink", INVITE_CONFIG.mapUrl);
@@ -980,65 +906,75 @@
 
                 if (submitBtn) {
                     submitBtn.disabled = true;
-                    submitBtn.textContent = "Confirmação já enviada";
+                    submitBtn.textContent = "Resposta já enviada";
                 }
-
-                deactivateTicketPreviewLink();
 
                 submittedAtText = formatSubmissionDate(existingSubmissionLock.submittedAt);
                 lockedMessage = submittedAtText
-                    ? "Já recebemos a tua confirmação neste dispositivo em " + submittedAtText + "."
-                    : "Já recebemos a tua confirmação neste dispositivo.";
+                    ? "Já recebemos a tua resposta neste dispositivo em " + submittedAtText + "."
+                    : "Já recebemos a tua resposta neste dispositivo.";
 
                 showFeedback("ok", lockedMessage);
             }
 
-            function buildFormspreePayload(entry) {
-                const formPayload = new URLSearchParams();
-
-                formPayload.set("_subject", "RSVP Aniversário Leonor");
-                formPayload.set("nome", entry.guestName);
-                formPayload.set("telemovel", entry.guestPhone);
-                formPayload.set("pessoas", String(entry.guestCount));
-                formPayload.set("presenca", entry.attendanceText);
-                formPayload.set("mensagem", entry.message);
-                formPayload.set("enviado_em", entry.submittedAt);
+            function buildWebhookPayload(entry) {
+                const payload = {
+                    source: "leonor-invite-site",
+                    submittedAt: entry.submittedAt,
+                    name: entry.guestName,
+                    email: entry.guestEmail,
+                    phone: entry.guestPhone,
+                    guests: String(entry.guestCount),
+                    attendance: entry.attendance,
+                    attendanceLabel: entry.attendanceText,
+                    message: entry.message,
+                    eventTitle: INVITE_CONFIG.title,
+                    eventDateText: INVITE_CONFIG.eventDateText,
+                    eventTimeText: INVITE_CONFIG.eventTimeText,
+                    eventLocation: INVITE_CONFIG.eventLocationText
+                };
 
                 if (isDigitalTicketEnabled) {
-                    formPayload.set("codigo_ingresso", entry.ticketCode || generateTicketCode(entry));
+                    payload.ticketCode = entry.ticketCode || generateTicketCode(entry);
                 }
 
-                return formPayload;
+                return payload;
             }
 
-            async function getFormspreeErrorMessage(response) {
-                let payload;
+            async function getWebhookErrorMessage(response) {
+                let rawPayload = "";
 
                 try {
-                    payload = await response.json();
+                    rawPayload = await response.text();
                 } catch (error) {
                     return "";
                 }
 
-                if (!payload) {
+                if (!rawPayload) {
                     return "";
                 }
 
-                if (Array.isArray(payload.errors) && payload.errors.length > 0) {
-                    return payload.errors.map(function (entry) {
-                        return entry && entry.message ? entry.message : "";
-                    }).filter(Boolean).join(" ");
+                try {
+                    const parsedPayload = JSON.parse(rawPayload);
+
+                    if (parsedPayload && typeof parsedPayload.error === "string") {
+                        return parsedPayload.error;
+                    }
+
+                    if (parsedPayload && typeof parsedPayload.message === "string") {
+                        return parsedPayload.message;
+                    }
+
+                    if (Array.isArray(parsedPayload.errors) && parsedPayload.errors.length > 0) {
+                        return parsedPayload.errors.map(function (entry) {
+                            return entry && entry.message ? entry.message : "";
+                        }).filter(Boolean).join(" ");
+                    }
+                } catch (error) {
+                    // Keep raw payload fallback when response is not JSON.
                 }
 
-                if (typeof payload.error === "string") {
-                    return payload.error;
-                }
-
-                if (typeof payload.message === "string") {
-                    return payload.message;
-                }
-
-                return "";
+                return rawPayload.slice(0, 200);
             }
 
             function buildThankYouUrl(entry) {
@@ -1072,16 +1008,28 @@
 
                 const guestName = document.getElementById("guestName").value.trim();
                 const guestPhone = keepOnlyDigits(document.getElementById("guestPhone").value.trim());
+                const guestEmail = guestEmailInput ? guestEmailInput.value.trim() : "";
                 const guestCount = document.getElementById("guestCount").value;
                 const attendanceSelect = document.getElementById("attendance");
                 const attendance = attendanceSelect.value;
                 const attendanceText = attendanceSelect.options[attendanceSelect.selectedIndex].text;
                 const message = document.getElementById("message").value.trim();
+                const botTrapValue = botTrapInput ? botTrapInput.value.trim() : "";
 
                 document.getElementById("guestPhone").value = guestPhone;
 
-                if (!guestName || !guestPhone || !attendance || !message) {
+                if (botTrapValue) {
+                    showFeedback("ok", "Resposta enviada com sucesso.");
+                    return;
+                }
+
+                if (!guestName || !guestPhone || !guestEmail || !attendance || !message) {
                     showFeedback("error", "Preenche todos os campos obrigatórios assinalados com *.");
+                    return;
+                }
+
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
+                    showFeedback("error", "Introduz um email válido.");
                     return;
                 }
 
@@ -1100,6 +1048,7 @@
                     submittedAt: new Date().toISOString(),
                     guestName: guestName,
                     guestPhone: guestPhone,
+                    guestEmail: guestEmail,
                     guestCount: numericGuestCount,
                     attendance: attendance,
                     attendanceText: attendanceText,
@@ -1107,8 +1056,8 @@
                 };
                 entry.ticketCode = isDigitalTicketEnabled ? generateTicketCode(entry) : "";
 
-                if (!INVITE_CONFIG.emailService.enabled || INVITE_CONFIG.emailService.endpoint.indexOf("SEU_ID") !== -1) {
-                    showFeedback("error", "Configura primeiro o endpoint gratuito (Formspree) no INVITE_CONFIG.");
+                if (!INVITE_CONFIG.emailService.enabled || INVITE_CONFIG.emailService.endpoint.indexOf("SEU_WEBHOOK_AQUI") !== -1) {
+                    showFeedback("error", "Configura primeiro o endpoint do webhook no Pipedream no INVITE_CONFIG.");
                     return;
                 }
 
@@ -1116,18 +1065,17 @@
                 submitBtn.textContent = "A enviar...";
 
                 try {
-                    const body = buildFormspreePayload(entry);
+                    const body = buildWebhookPayload(entry);
                     const response = await fetch(INVITE_CONFIG.emailService.endpoint, {
                         method: "POST",
                         headers: {
-                            "Accept": "application/json",
-                            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+                            "Content-Type": "application/json"
                         },
-                        body: body.toString()
+                        body: JSON.stringify(body)
                     });
 
                     if (!response.ok) {
-                        const detailedError = await getFormspreeErrorMessage(response);
+                        const detailedError = await getWebhookErrorMessage(response);
                         const statusHint = "Falha no envio (" + response.status + ")";
                         throw new Error(detailedError || statusHint);
                     }
@@ -1135,8 +1083,7 @@
                     storeSubmissionLock(entry);
                     form.reset();
                     document.getElementById("guestCount").value = "1";
-                    updateTicketPreviewLink();
-                    showFeedback("ok", "Confirmação enviada com sucesso por email. A redirecionar...");
+                    showFeedback("ok", "Resposta enviada com sucesso. A redirecionar...");
                     stopBackgroundMusic();
                     window.setTimeout(function () {
                         window.location.href = buildThankYouUrl(entry);
@@ -1151,17 +1098,17 @@
                     } else if (errorMessage) {
                         showFeedback("error", "Não foi possível enviar: " + errorMessage);
                     } else {
-                        showFeedback("error", "Não foi possível enviar. Verifica o endpoint do serviço gratuito.");
+                        showFeedback("error", "Não foi possível enviar. Verifica o endpoint do webhook no Pipedream.");
                     }
 
                     console.error("Falha no envio do formulário:", error);
                 } finally {
                     if (isSingleSubmissionLockEnabled && existingSubmissionLock) {
                         submitBtn.disabled = true;
-                        submitBtn.textContent = "Confirmação já enviada";
+                        submitBtn.textContent = "Resposta já enviada";
                     } else {
                         submitBtn.disabled = false;
-                        submitBtn.textContent = "Enviar confirmação";
+                        submitBtn.textContent = "Enviar resposta";
                     }
                 }
             });
@@ -1175,8 +1122,6 @@
 
             if (isSingleSubmissionLockEnabled && existingSubmissionLock) {
                 applySubmissionLockState();
-            } else {
-                updateTicketPreviewLink();
             }
 
             updateCountdown();

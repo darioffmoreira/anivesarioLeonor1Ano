@@ -14,6 +14,7 @@
         href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="assets/css/convite.css">
+    <script src="assets/js/site-mode.js"></script>
 </head>
 
 <body>
@@ -70,14 +71,17 @@
                         <div><strong id="timeLabel">Hora:</strong> <span id="timeValue">15:00</span></div>
                     </div>
                     <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
-                        <div><strong id="locationLabel">Local:</strong> <span id="locationValue">Porto, Portugal</span>
-                        </div>
-                    </div>
-                    <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
                         <div><strong id="confirmUntilLabel">Confirma até:</strong> <span id="confirmUntilValue">30 Abril</span></div>
                     </div>
                     <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
                         <div><strong id="timezoneLabel">Fuso horário:</strong> <span id="timezoneValue">Europe/Lisbon</span></div>
+                    </div>
+                    <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
+                        <div><strong id="quickContactLabel">Contacto rápido:</strong> <span id="quickContactValue">91xxxxxxx (telemóvel/WhatsApp)</span></div>
+                    </div>
+                    <div class="detail-item"><span class="label-dot" aria-hidden="true"></span>
+                        <div><strong id="locationLabel">Local:</strong> <span id="locationValue">Porto, Portugal</span>
+                        </div>
                     </div>
                     <div class="map-embed-wrap" aria-label="Mapa do local da festa">
                         <iframe id="mapEmbed" class="map-embed" title="Mapa do local"
@@ -98,6 +102,12 @@
                             <input id="guestPhone" name="guestPhone" type="text" inputmode="numeric"
                                 pattern="[0-9]*" autocomplete="tel-national" placeholder="Ex.: 912345678" title="Introduz apenas números"
                                 required>
+                        </div>
+
+                        <div>
+                            <label for="guestEmail">Email para confirmação *</label>
+                            <input id="guestEmail" name="guestEmail" type="email" autocomplete="email"
+                                placeholder="Ex.: nome@email.com" required>
                         </div>
 
                         <div class="fields-2">
@@ -122,9 +132,13 @@
                                 required></textarea>
                         </div>
 
+                        <div style="display:none !important;" aria-hidden="true">
+                            <label for="botTrap">Não preencher este campo</label>
+                            <input id="botTrap" name="_gotcha" type="text" tabindex="-1" autocomplete="off">
+                        </div>
+
                         <div class="actions">
-                            <button type="submit" class="btn-primary" id="submitBtn">Enviar confirmação</button>
-                            <a id="ticketPreviewLink" class="btn-secondary btn-action-link btn-ticket-preview" href="#" hidden aria-disabled="true">Pré-visualizar ingresso</a>
+                            <button type="submit" class="btn-primary" id="submitBtn">Enviar resposta</button>
                         </div>
 
                         <div id="formFeedback" class="feedback" role="status" aria-live="polite"></div>
