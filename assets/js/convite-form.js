@@ -49,6 +49,7 @@
         app.setHref("quickContactWhatsapp", app.buildWhatsAppHref(config.quickContactPhone || config.quickContactText, config.quickContactWhatsappMessage));
         app.setHref("mapLink", config.mapUrl);
         app.setSrc("mapEmbed", config.mapEmbedUrl);
+        app.setHref("privacyPolicyLink", config.privacyPolicyUrl || "pages/privacidade.html");
     }
 
     function updateCountdown() {
@@ -162,7 +163,10 @@
             eventTitle: config.title,
             eventDateText: config.eventDateText,
             eventTimeText: config.eventTimeText,
-            eventLocation: config.eventLocationText
+            eventLocation: config.eventLocationText,
+            consentPrivacyAccepted: !!entry.privacyConsentAccepted,
+            consentPrivacyAcceptedAt: entry.privacyConsentAcceptedAt || "",
+            consentPrivacyPolicyVersion: entry.privacyPolicyVersion || ""
         };
 
         if (flags.isDigitalTicketEnabled) {
@@ -266,6 +270,7 @@
                 : "";
             const messageEl = document.getElementById("message");
             const message = messageEl ? messageEl.value.trim() : "";
+            const hasPrivacyConsent = !!(elements.privacyConsentInput && elements.privacyConsentInput.checked);
             const botTrapValue = elements.botTrapInput ? elements.botTrapInput.value.trim() : "";
 
             if (elements.guestPhoneInput) {
@@ -284,6 +289,11 @@
 
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
                 app.showFeedback("error", texts.FORM_INVALID_EMAIL_TEXT);
+                return;
+            }
+
+            if (!hasPrivacyConsent) {
+                app.showFeedback("error", texts.FORM_PRIVACY_CONSENT_REQUIRED_TEXT);
                 return;
             }
 
@@ -306,7 +316,10 @@
                 guestCount: numericGuestCount,
                 attendance: attendance,
                 attendanceText: attendanceText,
-                message: message
+                message: message,
+                privacyConsentAccepted: hasPrivacyConsent,
+                privacyConsentAcceptedAt: new Date().toISOString(),
+                privacyPolicyVersion: String(config.privacyPolicyVersion || "")
             };
             entry.ticketCode = flags.isDigitalTicketEnabled ? app.generateTicketCode(entry) : "";
 

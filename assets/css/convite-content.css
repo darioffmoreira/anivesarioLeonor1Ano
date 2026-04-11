@@ -586,6 +586,57 @@ button:hover {
     color: #5d5360;
 }
 
+.consent-block {
+    margin-top: 4px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    border: 1px solid #ffd3e3;
+    background: #fff9fc;
+    display: grid;
+    gap: 8px;
+}
+
+.consent-check {
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: #403341;
+}
+
+.consent-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    margin: 1px 0 0;
+    padding: 0;
+    border-radius: 4px;
+    border: 1px solid #e8a6bf;
+    accent-color: var(--pink-main);
+    background: #fff;
+}
+
+.consent-check input[type="checkbox"]:focus {
+    outline: none;
+    border-color: var(--pink-main);
+    box-shadow: 0 0 0 4px rgba(230, 82, 130, 0.16);
+}
+
+.consent-link {
+    color: #b1133f;
+    font-weight: 800;
+    text-decoration: underline;
+}
+
+.consent-note {
+    margin: 0;
+    color: #695766;
+    font-size: 0.8rem;
+}
+
 .bot-trap-field {
     display: none !important;
 }

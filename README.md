@@ -11,6 +11,8 @@ Static web invitation for Leonor's first birthday, with RSVP automation, interac
 - First-visit loading experience (shown once per device via localStorage).
 - Party mini-game (runner/obstacles) with score and local best score persistence.
 - RSVP form with validation for required fields, email format, numeric phone, and guest count range (1 to 20).
+- Mandatory privacy-consent checkbox before RSVP submit, with dedicated privacy-policy link.
+- Optional consent checkbox for future family-event communications.
 - Hidden honeypot field to reduce spam bot submissions.
 - RSVP submission to a Pipedream webhook (`POST` JSON).
 - Webhook-first automation model: form data is sent to Pipedream, where downstream actions can send emails and append records to Excel.
@@ -34,6 +36,7 @@ Static web invitation for Leonor's first birthday, with RSVP automation, interac
 - `assets/css/convite-motion.css`: animations and keyframes used by invitation interactions.
 - `assets/css/convite-responsive.css`: responsive and reduced-motion media-query overrides.
 - `assets/css/party-runner.css`: mini-game visual styles.
+- `assets/css/privacidade.css`: privacy-policy page styles.
 - `assets/js/pt-pt-config.js`: centralized PT-PT text catalog for UI copy (invitation runtime messages and mini-game labels).
 - `assets/js/convite-shared.js`: shared invitation state, runtime config (`INVITE_CONFIG`), DOM references, text fallbacks, and helpers.
 - `assets/js/convite-audio-loader.js`: first-visit loader plus background-music control and autoplay fallback behavior.
@@ -46,6 +49,7 @@ Static web invitation for Leonor's first birthday, with RSVP automation, interac
 - `pages/minnie-art.html`: Minnie artwork rendered in an iframe.
 - `pages/agradecimento.html`: personalized confirmation page with ticket and calendar actions.
 - `pages/manutencao.html`: maintenance mode landing page.
+- `pages/privacidade.html`: privacy policy (RGPD) information page linked from the RSVP form.
 - `assets/media/audio.mp3`: background audio track.
 - `assets/media/favicon.svg`: favicon used across pages.
 
@@ -100,6 +104,7 @@ npm run test:e2e:ui
 - Required fields validation.
 - Invalid email validation.
 - Guest count range validation (`1` to `20`).
+- Mandatory privacy-consent validation before submit.
 - Honeypot behavior (early success path without webhook call).
 - Successful submit: payload contract and redirect query params.
 - Webhook error feedback and submit-button recovery.
@@ -140,6 +145,7 @@ Key fields:
 - `quickContactText`, `quickContactPhone`, `quickContactSmsMessage`, `quickContactWhatsappMessage`.
 - `mapUrl`, `mapDirectionsUrl`, `mapEmbedUrl`.
 - `backgroundMusicUrl`, `backgroundMusicVolume`, `backgroundMusicAutoPauseAfterCycles`.
+- `privacyPolicyUrl`, `privacyPolicyVersion`.
 - `emailService.endpoint`, `emailService.enabled`.
 - `features.enableDigitalTicket`, `features.enableSingleSubmissionLock`.
 
@@ -158,6 +164,7 @@ Current payload includes:
 - `name`, `email`, `phone`, `guests`.
 - `attendance`, `attendanceLabel`, `message`.
 - `eventTitle`, `eventDateText`, `eventTimeText`, `eventLocation`.
+- `consentPrivacyAccepted`, `consentPrivacyAcceptedAt`, `consentPrivacyPolicyVersion`.
 - `ticketCode` when digital ticket is enabled.
 
 ## Pipedream Workflow Logic (Email + Excel)

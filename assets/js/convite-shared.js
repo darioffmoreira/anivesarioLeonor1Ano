@@ -24,6 +24,8 @@
         backgroundMusicUrl: "assets/media/audio.mp3",
         backgroundMusicVolume: 0.45,
         backgroundMusicAutoPauseAfterCycles: 3,
+        privacyPolicyUrl: "pages/privacidade.html",
+        privacyPolicyVersion: "2026-04-11",
         emailService: {
             endpoint: "https://904aad8ee6a35604b384ac2cde5a6617.m.pipedream.net",
             enabled: true
@@ -69,6 +71,9 @@
     const FORM_INVALID_EMAIL_TEXT = typeof formTextConfig.invalidEmail === "string" ? formTextConfig.invalidEmail : "Introduz um email válido.";
     const FORM_INVALID_PHONE_TEXT = typeof formTextConfig.invalidPhone === "string" ? formTextConfig.invalidPhone : "O telemóvel deve conter apenas números.";
     const FORM_GUEST_COUNT_RANGE_TEXT = typeof formTextConfig.guestCountRange === "string" ? formTextConfig.guestCountRange : "O número de pessoas deve estar entre 1 e 20.";
+    const FORM_PRIVACY_CONSENT_REQUIRED_TEXT = typeof formTextConfig.privacyConsentRequired === "string"
+        ? formTextConfig.privacyConsentRequired
+        : "Para enviar a resposta, tens de aceitar a Política de Privacidade.";
     const FORM_CONFIGURE_WEBHOOK_TEXT = typeof formTextConfig.configureWebhook === "string"
         ? formTextConfig.configureWebhook
         : "Configura primeiro o endpoint do webhook no Pipedream no INVITE_CONFIG.";
@@ -138,6 +143,7 @@
             guestEmailInput: document.getElementById("guestEmail"),
             guestCountInput: document.getElementById("guestCount"),
             attendanceInput: document.getElementById("attendance"),
+            privacyConsentInput: document.getElementById("privacyConsent"),
             botTrapInput: document.getElementById("botTrap"),
             firstVisitLoader: document.getElementById("firstVisitLoader"),
             bgMusic: document.getElementById("bgMusic"),
@@ -203,6 +209,7 @@
             FORM_INVALID_EMAIL_TEXT: FORM_INVALID_EMAIL_TEXT,
             FORM_INVALID_PHONE_TEXT: FORM_INVALID_PHONE_TEXT,
             FORM_GUEST_COUNT_RANGE_TEXT: FORM_GUEST_COUNT_RANGE_TEXT,
+            FORM_PRIVACY_CONSENT_REQUIRED_TEXT: FORM_PRIVACY_CONSENT_REQUIRED_TEXT,
             FORM_CONFIGURE_WEBHOOK_TEXT: FORM_CONFIGURE_WEBHOOK_TEXT,
             FORM_LOCAL_MODE_SEND_ERROR_TEXT: FORM_LOCAL_MODE_SEND_ERROR_TEXT,
             FORM_SEND_ERROR_PREFIX_TEXT: FORM_SEND_ERROR_PREFIX_TEXT,

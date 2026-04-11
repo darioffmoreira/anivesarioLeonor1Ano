@@ -6,6 +6,7 @@ const PIPEDREAM_ENDPOINT_REGEX = /https:\/\/.*\.m\.pipedream\.net\/?/i;
 
 const messages = {
   required: "Preenche todos os campos obrigatórios assinalados com *.",
+  privacyConsentRequired: "Para enviar a resposta, tens de aceitar a Política de Privacidade.",
   invalidEmail: "Introduz um email válido.",
   guestCountRange: "O número de pessoas deve estar entre 1 e 20.",
   successSimple: "Resposta enviada com sucesso.",
@@ -60,6 +61,7 @@ async function fillValidForm(page, overrides = {}) {
     guestCount: "3",
     attendance: "coming",
     message: "Vamos estar presentes e felizes por celebrar.",
+    privacyConsent: true,
     ...overrides
   };
 
@@ -69,6 +71,12 @@ async function fillValidForm(page, overrides = {}) {
   await page.fill("#guestCount", data.guestCount);
   await page.selectOption("#attendance", data.attendance);
   await page.fill("#message", data.message);
+
+  if (data.privacyConsent) {
+    await page.check("#privacyConsent");
+  } else {
+    await page.uncheck("#privacyConsent");
+  }
 
   return data;
 }
@@ -128,6 +136,15 @@ test.describe("RSVP form critical flow", () => {
     await expect(page.locator("#formFeedback")).toHaveText(messages.guestCountRange);
   });
 
+  test("requires privacy consent before submit", async ({ page }) => {
+    await openInvite(page);
+    await fillValidForm(page, { privacyConsent: false });
+
+    await page.click("#submitBtn");
+
+    await expect(page.locator("#formFeedback")).toHaveText(messages.privacyConsentRequired);
+  });
+
   test("honeypot submission exits early and does not call webhook", async ({ page }) => {
     let webhookHits = 0;
 
@@ -171,6 +188,9 @@ test.describe("RSVP form critical flow", () => {
     expect(calls[0].body.guests).toBe(validData.guestCount);
     expect(calls[0].body.attendance).toBe(validData.attendance);
     expect(calls[0].body.message).toBe(validData.message);
+    expect(calls[0].body.consentPrivacyAccepted).toBe(true);
+    expect(typeof calls[0].body.consentPrivacyAcceptedAt).toBe("string");
+    expect(calls[0].body.consentPrivacyPolicyVersion).toBe("2026-04-11");
     expect(typeof calls[0].body.ticketCode).toBe("string");
     expect(calls[0].body.ticketCode.length).toBeGreaterThan(0);
 

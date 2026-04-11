@@ -45,6 +45,7 @@
                 invalidEmail: "Introduz um email válido.",
                 invalidPhone: "O telemóvel deve conter apenas números.",
                 guestCountRange: "O número de pessoas deve estar entre 1 e 20.",
+                privacyConsentRequired: "Para enviar a resposta, tens de aceitar a Política de Privacidade.",
                 configureWebhook: "Configura primeiro o endpoint do webhook no Pipedream no INVITE_CONFIG.",
                 localModeSendError: "Não foi possível enviar em modo local. Abre o convite num servidor (http/https) e tenta novamente.",
                 sendErrorPrefix: "Não foi possível enviar: ",

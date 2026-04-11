@@ -1,0 +1,129 @@
+:root {
+    --pink-main: #E65282;
+    --red-main: #C84673;
+    --ink: #1f1f24;
+    --ink-soft: #594853;
+    --cream: #fff8f2;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: "Nunito", sans-serif;
+    color: var(--ink);
+    background:
+        radial-gradient(circle at 10% 12%, rgba(255, 255, 255, 0.48) 0 15%, transparent 16%),
+        radial-gradient(circle at 88% 18%, rgba(255, 240, 214, 0.52) 0 16%, transparent 17%),
+        linear-gradient(145deg, #ff7ea8 0%, #ff5f91 36%, #ff8f6a 74%, #ffc979 100%);
+    padding: 18px;
+}
+
+.privacy-card {
+    width: min(100%, 860px);
+    margin: 0 auto;
+    border-radius: 26px;
+    padding: 30px 22px 24px;
+    background: linear-gradient(180deg, rgba(255, 253, 251, 0.98), rgba(255, 247, 251, 0.98));
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 24px 52px rgba(125, 27, 65, 0.28);
+}
+
+.privacy-tag {
+    margin: 0 0 12px;
+    width: max-content;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #fff;
+    background: linear-gradient(135deg, var(--pink-main), var(--red-main));
+}
+
+h1 {
+    margin: 0;
+    font-family: "Baloo 2", cursive;
+    font-size: clamp(1.8rem, 4.6vw, 2.7rem);
+    line-height: 1.08;
+    color: #2b2330;
+}
+
+.privacy-intro {
+    margin: 12px 0 0;
+    color: var(--ink-soft);
+    line-height: 1.55;
+}
+
+.privacy-section {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid #ffd3e3;
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.privacy-section h2 {
+    margin: 0 0 8px;
+    font-family: "Baloo 2", cursive;
+    font-size: 1.34rem;
+    color: #352b39;
+}
+
+.privacy-section p,
+.privacy-section li {
+    margin: 0;
+    color: #4f404b;
+    line-height: 1.5;
+}
+
+.privacy-section ul {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 6px;
+}
+
+.privacy-meta {
+    margin-top: 16px;
+    font-size: 0.88rem;
+    color: #6c5a65;
+}
+
+.back-link {
+    margin-top: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, var(--pink-main), var(--red-main));
+    box-shadow: 0 12px 24px rgba(198, 70, 115, 0.24);
+}
+
+.back-link:hover {
+    filter: brightness(1.05);
+}
+
+@media (max-width: 640px) {
+    .privacy-card {
+        border-radius: 20px;
+        padding: 24px 14px 20px;
+    }
+
+    .privacy-section {
+        padding: 12px;
+    }
+}
