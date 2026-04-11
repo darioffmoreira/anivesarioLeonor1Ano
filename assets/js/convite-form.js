@@ -79,6 +79,14 @@
         });
     }
 
+    function clearSubmissionLockStorage() {
+        try {
+            window.localStorage.removeItem(constants.SUBMISSION_LOCK_KEY);
+        } catch (error) {
+            return;
+        }
+    }
+
     function readSubmissionLock() {
         if (!flags.isSingleSubmissionLockEnabled) {
             return null;
@@ -94,11 +102,19 @@
             const parsedLock = JSON.parse(rawLock);
 
             if (!parsedLock || typeof parsedLock !== "object") {
+                clearSubmissionLockStorage();
+                return null;
+            }
+
+            if (!Number.isFinite(parsedLock.expiresAt) || parsedLock.expiresAt <= Date.now()) {
+                // Treat legacy locks without expiresAt as expired to avoid permanent blocks.
+                clearSubmissionLockStorage();
                 return null;
             }
 
             return parsedLock;
         } catch (error) {
+            clearSubmissionLockStorage();
             return null;
         }
     }
@@ -112,7 +128,8 @@
             submittedAt: entry.submittedAt,
             guestName: entry.guestName,
             guestCount: entry.guestCount,
-            attendance: entry.attendance
+            attendance: entry.attendance,
+            expiresAt: Date.now() + constants.SUBMISSION_LOCK_TTL_MS
         };
 
         state.existingSubmissionLock = lockPayload;
@@ -138,6 +155,7 @@
 
         if (elements.submitBtn) {
             elements.submitBtn.disabled = true;
+            setSubmitButtonLoadingState(false);
             elements.submitBtn.textContent = texts.FORM_SUBMIT_LOCKED_TEXT;
         }
 
@@ -164,9 +182,9 @@
             eventDateText: config.eventDateText,
             eventTimeText: config.eventTimeText,
             eventLocation: config.eventLocationText,
-            consentPrivacyAccepted: !!entry.privacyConsentAccepted,
-            consentPrivacyAcceptedAt: entry.privacyConsentAcceptedAt || "",
-            consentPrivacyPolicyVersion: entry.privacyPolicyVersion || ""
+            consentPrivacyAccepted: entry.consentPrivacyAccepted,
+            consentPrivacyAcceptedAt: entry.consentPrivacyAcceptedAt,
+            consentPrivacyPolicyVersion: entry.consentPrivacyPolicyVersion
         };
 
         if (flags.isDigitalTicketEnabled) {
@@ -178,15 +196,16 @@
 
     async function getWebhookErrorMessage(response) {
         let rawPayload = "";
+        const statusHint = "Falha no envio (" + response.status + ")";
 
         try {
             rawPayload = await response.text();
         } catch (error) {
-            return "";
+            return statusHint;
         }
 
         if (!rawPayload) {
-            return "";
+            return statusHint;
         }
 
         try {
@@ -209,7 +228,7 @@
             // Keep raw payload fallback when response is not JSON.
         }
 
-        return rawPayload.slice(0, 200);
+        return statusHint + ": " + rawPayload.slice(0, 200);
     }
 
     function buildThankYouUrl(entry) {
@@ -233,13 +252,129 @@
         return "pages/agradecimento.html?" + params.toString();
     }
 
+    function sanitizePhoneInput(value) {
+        return String(value || "").trim().replace(/[^\d+]/g, "");
+    }
+
+    function normalizePhoneE164Lite(value) {
+        const sanitized = sanitizePhoneInput(value);
+        const plusMatches = sanitized.match(/\+/g);
+        const plusCount = plusMatches ? plusMatches.length : 0;
+
+        if (!sanitized) {
+            return "";
+        }
+
+        if (plusCount > 1 || sanitized.indexOf("+") > 0) {
+            return sanitized;
+        }
+
+        return sanitized.charAt(0) === "+"
+            ? "+" + sanitized.slice(1).replace(/\D+/g, "")
+            : sanitized.replace(/\D+/g, "");
+    }
+
+    function isValidPhoneE164Lite(value) {
+        return /^\+?\d{9,15}$/.test(String(value || ""));
+    }
+
+    function readFormValues() {
+        const attendanceSelect = elements.attendanceInput;
+        const messageEl = document.getElementById("message");
+        const guestName = elements.guestNameInput ? elements.guestNameInput.value.trim() : "";
+        const guestPhoneRaw = elements.guestPhoneInput ? elements.guestPhoneInput.value : "";
+        const guestPhone = normalizePhoneE164Lite(guestPhoneRaw);
+        const guestEmail = elements.guestEmailInput ? elements.guestEmailInput.value.trim() : "";
+
+        if (elements.guestPhoneInput) {
+            elements.guestPhoneInput.value = guestPhone;
+        }
+
+        if (elements.guestEmailInput) {
+            elements.guestEmailInput.value = guestEmail;
+        }
+
+        return {
+            guestName: guestName,
+            guestPhone: guestPhone,
+            guestEmail: guestEmail,
+            guestCount: elements.guestCountInput ? elements.guestCountInput.value : "",
+            attendance: attendanceSelect ? attendanceSelect.value : "",
+            attendanceText: attendanceSelect && attendanceSelect.selectedIndex >= 0
+                ? attendanceSelect.options[attendanceSelect.selectedIndex].text
+                : "",
+            message: messageEl ? messageEl.value.trim() : "",
+            hasPrivacyConsent: !!(elements.privacyConsentInput && elements.privacyConsentInput.checked),
+            botTrapValue: elements.botTrapInput ? elements.botTrapInput.value.trim() : ""
+        };
+    }
+
+    function validateEntry(values) {
+        const numericGuestCount = Number(values.guestCount || 1);
+        const isNativeEmailValid = elements.guestEmailInput && typeof elements.guestEmailInput.checkValidity === "function"
+            ? elements.guestEmailInput.checkValidity()
+            : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.guestEmail);
+
+        if (!values.guestName || !values.guestPhone || !values.guestEmail || !values.guestCount || !values.attendance || !values.message) {
+            return { error: texts.FORM_REQUIRED_FIELDS_TEXT };
+        }
+
+        if (!isNativeEmailValid) {
+            return { error: texts.FORM_INVALID_EMAIL_TEXT };
+        }
+
+        if (!values.hasPrivacyConsent) {
+            return { error: texts.FORM_PRIVACY_CONSENT_REQUIRED_TEXT };
+        }
+
+        if (!isValidPhoneE164Lite(values.guestPhone)) {
+            return { error: texts.FORM_INVALID_PHONE_TEXT };
+        }
+
+        if (!Number.isFinite(numericGuestCount) || numericGuestCount < 1 || numericGuestCount > 20) {
+            return { error: texts.FORM_GUEST_COUNT_RANGE_TEXT };
+        }
+
+        return {
+            error: "",
+            numericGuestCount: numericGuestCount
+        };
+    }
+
+    function buildEntry(values, numericGuestCount) {
+        const submittedAt = new Date().toISOString();
+
+        return {
+            submittedAt: submittedAt,
+            guestName: values.guestName,
+            guestPhone: values.guestPhone,
+            guestEmail: values.guestEmail,
+            guestCount: numericGuestCount,
+            attendance: values.attendance,
+            attendanceText: values.attendanceText,
+            message: values.message,
+            consentPrivacyAccepted: values.hasPrivacyConsent,
+            consentPrivacyAcceptedAt: submittedAt,
+            consentPrivacyPolicyVersion: String(config.privacyPolicyVersion || "")
+        };
+    }
+
+    function setSubmitButtonLoadingState(isLoading) {
+        if (!elements.submitBtn) {
+            return;
+        }
+
+        elements.submitBtn.classList.toggle("is-loading", !!isLoading);
+        elements.submitBtn.setAttribute("aria-busy", isLoading ? "true" : "false");
+    }
+
     function setupPhoneNormalization() {
         if (!elements.guestPhoneInput) {
             return;
         }
 
         elements.guestPhoneInput.addEventListener("input", function () {
-            this.value = app.keepOnlyDigits(this.value);
+            this.value = sanitizePhoneInput(this.value);
         });
     }
 
@@ -253,74 +388,29 @@
 
         elements.form.addEventListener("submit", async function (event) {
             event.preventDefault();
+            let entry;
+            let formValues;
+            let validation;
 
             if (flags.isSingleSubmissionLockEnabled && state.existingSubmissionLock) {
                 applySubmissionLockState();
                 return;
             }
 
-            const guestName = elements.guestNameInput ? elements.guestNameInput.value.trim() : "";
-            const guestPhone = app.keepOnlyDigits(elements.guestPhoneInput ? elements.guestPhoneInput.value.trim() : "");
-            const guestEmail = elements.guestEmailInput ? elements.guestEmailInput.value.trim() : "";
-            const guestCount = elements.guestCountInput ? elements.guestCountInput.value : "";
-            const attendanceSelect = elements.attendanceInput;
-            const attendance = attendanceSelect ? attendanceSelect.value : "";
-            const attendanceText = attendanceSelect && attendanceSelect.selectedIndex >= 0
-                ? attendanceSelect.options[attendanceSelect.selectedIndex].text
-                : "";
-            const messageEl = document.getElementById("message");
-            const message = messageEl ? messageEl.value.trim() : "";
-            const hasPrivacyConsent = !!(elements.privacyConsentInput && elements.privacyConsentInput.checked);
-            const botTrapValue = elements.botTrapInput ? elements.botTrapInput.value.trim() : "";
+            formValues = readFormValues();
+            validation = validateEntry(formValues);
 
-            if (elements.guestPhoneInput) {
-                elements.guestPhoneInput.value = guestPhone;
-            }
-
-            if (botTrapValue) {
+            if (formValues.botTrapValue) {
                 app.showFeedback("ok", texts.FORM_SUCCESS_SIMPLE_TEXT);
                 return;
             }
 
-            if (!guestName || !guestPhone || !guestEmail || !guestCount || !attendance || !message) {
-                app.showFeedback("error", texts.FORM_REQUIRED_FIELDS_TEXT);
+            if (validation.error) {
+                app.showFeedback("error", validation.error);
                 return;
             }
 
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
-                app.showFeedback("error", texts.FORM_INVALID_EMAIL_TEXT);
-                return;
-            }
-
-            if (!hasPrivacyConsent) {
-                app.showFeedback("error", texts.FORM_PRIVACY_CONSENT_REQUIRED_TEXT);
-                return;
-            }
-
-            if (!/^\d+$/.test(guestPhone)) {
-                app.showFeedback("error", texts.FORM_INVALID_PHONE_TEXT);
-                return;
-            }
-
-            const numericGuestCount = Number(guestCount || 1);
-            if (!Number.isFinite(numericGuestCount) || numericGuestCount < 1 || numericGuestCount > 20) {
-                app.showFeedback("error", texts.FORM_GUEST_COUNT_RANGE_TEXT);
-                return;
-            }
-
-            const entry = {
-                submittedAt: new Date().toISOString(),
-                guestName: guestName,
-                guestPhone: guestPhone,
-                guestEmail: guestEmail,
-                guestCount: numericGuestCount,
-                attendance: attendance,
-                attendanceText: attendanceText,
-                message: message,
-                privacyConsentAccepted: hasPrivacyConsent,
-                privacyConsentAcceptedAt: new Date().toISOString(),
-                privacyPolicyVersion: String(config.privacyPolicyVersion || "")
-            };
+            entry = buildEntry(formValues, validation.numericGuestCount);
             entry.ticketCode = flags.isDigitalTicketEnabled ? app.generateTicketCode(entry) : "";
 
             if (!config.emailService.enabled || config.emailService.endpoint.indexOf("SEU_WEBHOOK_AQUI") !== -1) {
@@ -330,6 +420,7 @@
 
             if (elements.submitBtn) {
                 elements.submitBtn.disabled = true;
+                setSubmitButtonLoadingState(true);
                 elements.submitBtn.textContent = texts.FORM_SUBMIT_SENDING_TEXT;
             }
 
@@ -345,8 +436,7 @@
 
                 if (!response.ok) {
                     const detailedError = await getWebhookErrorMessage(response);
-                    const statusHint = "Falha no envio (" + response.status + ")";
-                    throw new Error(detailedError || statusHint);
+                    throw new Error(detailedError);
                 }
 
                 storeSubmissionLock(entry);
@@ -379,6 +469,8 @@
                 console.error("Falha no envio do formulário:", error);
             } finally {
                 if (elements.submitBtn) {
+                    setSubmitButtonLoadingState(false);
+
                     if (flags.isSingleSubmissionLockEnabled && state.existingSubmissionLock) {
                         elements.submitBtn.disabled = true;
                         elements.submitBtn.textContent = texts.FORM_SUBMIT_LOCKED_TEXT;

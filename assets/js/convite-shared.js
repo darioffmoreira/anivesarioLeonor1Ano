@@ -69,7 +69,9 @@
     const FORM_SUCCESS_REDIRECT_TEXT = typeof formTextConfig.successRedirect === "string" ? formTextConfig.successRedirect : "Resposta enviada com sucesso. A redirecionar...";
     const FORM_REQUIRED_FIELDS_TEXT = typeof formTextConfig.requiredFields === "string" ? formTextConfig.requiredFields : "Preenche todos os campos obrigatórios assinalados com *.";
     const FORM_INVALID_EMAIL_TEXT = typeof formTextConfig.invalidEmail === "string" ? formTextConfig.invalidEmail : "Introduz um email válido.";
-    const FORM_INVALID_PHONE_TEXT = typeof formTextConfig.invalidPhone === "string" ? formTextConfig.invalidPhone : "O telemóvel deve conter apenas números.";
+    const FORM_INVALID_PHONE_TEXT = typeof formTextConfig.invalidPhone === "string"
+        ? formTextConfig.invalidPhone
+        : "Introduz um telemóvel válido (9 a 15 dígitos, com + opcional no início).";
     const FORM_GUEST_COUNT_RANGE_TEXT = typeof formTextConfig.guestCountRange === "string" ? formTextConfig.guestCountRange : "O número de pessoas deve estar entre 1 e 20.";
     const FORM_PRIVACY_CONSENT_REQUIRED_TEXT = typeof formTextConfig.privacyConsentRequired === "string"
         ? formTextConfig.privacyConsentRequired
@@ -130,6 +132,8 @@
             : fallback;
     }
 
+    const featureConfig = INVITE_CONFIG.features || {};
+
     const app = {
         INVITE_CONFIG: INVITE_CONFIG,
         eventDate: new Date(INVITE_CONFIG.eventDateISO),
@@ -167,11 +171,12 @@
             MINNIE_RAPID_CLICK_MIN_STREAK: 3,
             MINNIE_EFFECT_DURATION_MS: 1900,
             SITE_CLICK_CONFETTI_COOLDOWN_MS: 90,
-            SUBMISSION_LOCK_KEY: "leonor_invite_submission_lock_v1"
+            SUBMISSION_LOCK_KEY: "leonor_invite_submission_lock_v1",
+            SUBMISSION_LOCK_TTL_MS: 30 * 24 * 60 * 60 * 1000
         },
         flags: {
-            isDigitalTicketEnabled: !!(INVITE_CONFIG.features && INVITE_CONFIG.features.enableDigitalTicket),
-            isSingleSubmissionLockEnabled: !!(INVITE_CONFIG.features && INVITE_CONFIG.features.enableSingleSubmissionLock),
+            isDigitalTicketEnabled: featureConfig.enableDigitalTicket ?? true,
+            isSingleSubmissionLockEnabled: featureConfig.enableSingleSubmissionLock ?? true,
             prefersReducedMotion: window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches
         },
         state: {

@@ -124,8 +124,8 @@
 
                         <div>
                             <label for="guestPhone">Telemóvel para contacto *</label>
-                            <input id="guestPhone" name="guestPhone" type="text" inputmode="numeric"
-                                pattern="[0-9]*" autocomplete="tel-national" placeholder="Ex.: 912345678" title="Introduz apenas números"
+                            <input id="guestPhone" name="guestPhone" type="text" inputmode="tel"
+                                pattern="\+?[0-9]{9,15}" autocomplete="tel-national" placeholder="Ex.: +351912345678" title="Introduz 9 a 15 dígitos, com + opcional no início"
                                 required>
                         </div>
 

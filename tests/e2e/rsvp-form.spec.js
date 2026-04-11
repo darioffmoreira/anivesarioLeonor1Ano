@@ -8,6 +8,7 @@ const messages = {
   required: "Preenche todos os campos obrigatórios assinalados com *.",
   privacyConsentRequired: "Para enviar a resposta, tens de aceitar a Política de Privacidade.",
   invalidEmail: "Introduz um email válido.",
+  invalidPhone: "Introduz um telemóvel válido (9 a 15 dígitos, com + opcional no início).",
   guestCountRange: "O número de pessoas deve estar entre 1 e 20.",
   successSimple: "Resposta enviada com sucesso.",
   successRedirect: "Resposta enviada com sucesso. A redirecionar...",
@@ -127,6 +128,15 @@ test.describe("RSVP form critical flow", () => {
     await expect(page.locator("#formFeedback")).toHaveText(messages.invalidEmail);
   });
 
+  test("rejects phone values with invalid plus placement", async ({ page }) => {
+    await openInvite(page);
+    await fillValidForm(page, { guestPhone: "++351912345678" });
+
+    await page.click("#submitBtn");
+
+    await expect(page.locator("#formFeedback")).toHaveText(messages.invalidPhone);
+  });
+
   test("shows guest count range error when value is outside allowed limits", async ({ page }) => {
     await openInvite(page);
     await fillValidForm(page, { guestCount: "21" });
@@ -190,6 +200,8 @@ test.describe("RSVP form critical flow", () => {
     expect(calls[0].body.message).toBe(validData.message);
     expect(calls[0].body.consentPrivacyAccepted).toBe(true);
     expect(typeof calls[0].body.consentPrivacyAcceptedAt).toBe("string");
+    expect(calls[0].body.consentPrivacyAcceptedAt).not.toBe("");
+    expect(Number.isNaN(Date.parse(calls[0].body.consentPrivacyAcceptedAt))).toBe(false);
     expect(calls[0].body.consentPrivacyPolicyVersion).toBe("2026-04-11");
     expect(typeof calls[0].body.ticketCode).toBe("string");
     expect(calls[0].body.ticketCode.length).toBeGreaterThan(0);
@@ -219,6 +231,68 @@ test.describe("RSVP form critical flow", () => {
     await expect(page.locator("#formFeedback")).toHaveText(messages.sendErrorPrefix + "Webhook fora de serviço");
     await expect(page.locator("#submitBtn")).toHaveText(messages.submitDefault);
     await expect(page).toHaveURL(/\/index\.html$|\/$/);
+  });
+
+  test("shows status context when webhook returns non-JSON error", async ({ page }) => {
+    await page.route(PIPEDREAM_ENDPOINT_REGEX, async (route) => {
+      await route.fulfill({
+        status: 502,
+        contentType: "text/plain",
+        body: "Gateway indisponível"
+      });
+    });
+
+    await openInvite(page);
+    await fillValidForm(page);
+    await page.click("#submitBtn");
+
+    await expect(page.locator("#formFeedback")).toHaveText(messages.sendErrorPrefix + "Falha no envio (502): Gateway indisponível");
+    await expect(page.locator("#submitBtn")).toHaveText(messages.submitDefault);
+  });
+
+  test("keeps active submission lock and blocks form", async ({ page }) => {
+    await openInvite(page, {
+      lockEntry: {
+        submittedAt: new Date().toISOString(),
+        guestName: "Convidado bloqueado",
+        guestCount: 2,
+        attendance: "coming",
+        expiresAt: Date.now() + 60 * 60 * 1000
+      }
+    });
+
+    await expect(page.locator("#formFeedback")).toContainText(messages.submissionLockPrefix);
+    await expect(page.locator("#submitBtn")).toBeDisabled();
+    await expect(page.locator("#submitBtn")).toHaveText(messages.submitLocked);
+    await expect(page.locator("#guestName")).toBeDisabled();
+  });
+
+  test("ignores expired lock and allows a new submission", async ({ page }) => {
+    const calls = await buildSuccessfulRoute(page);
+
+    await openInvite(page, {
+      lockEntry: {
+        submittedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        guestName: "Convidado antigo",
+        guestCount: 1,
+        attendance: "coming",
+        expiresAt: Date.now() - 1000
+      }
+    });
+
+    const persistedLock = await page.evaluate((lockKey) => window.localStorage.getItem(lockKey), SUBMISSION_LOCK_KEY);
+    expect(persistedLock).toBeNull();
+    await expect(page.locator("#submitBtn")).toBeEnabled();
+
+    await fillValidForm(page, {
+      guestName: "Novo convidado após expiração",
+      guestEmail: "novo.convidado@example.com"
+    });
+
+    await page.click("#submitBtn");
+    await page.waitForURL(/\/pages\/agradecimento\.html\?/);
+
+    expect(calls).toHaveLength(1);
   });
 
   test("locks form after a successful submission when returning to the invitation page", async ({ page }) => {

@@ -43,7 +43,7 @@
                 successRedirect: "Resposta enviada com sucesso. A redirecionar...",
                 requiredFields: "Preenche todos os campos obrigatórios assinalados com *.",
                 invalidEmail: "Introduz um email válido.",
-                invalidPhone: "O telemóvel deve conter apenas números.",
+                invalidPhone: "Introduz um telemóvel válido (9 a 15 dígitos, com + opcional no início).",
                 guestCountRange: "O número de pessoas deve estar entre 1 e 20.",
                 privacyConsentRequired: "Para enviar a resposta, tens de aceitar a Política de Privacidade.",
                 configureWebhook: "Configura primeiro o endpoint do webhook no Pipedream no INVITE_CONFIG.",

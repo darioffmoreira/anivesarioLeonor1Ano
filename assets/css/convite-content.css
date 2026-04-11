@@ -495,6 +495,38 @@ button {
     flex: 1 1 180px;
 }
 
+#submitBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+}
+
+#submitBtn.is-loading {
+    cursor: progress;
+}
+
+#submitBtn.is-loading::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.42);
+    border-top-color: #fff;
+    animation: submitSpinner 0.72s linear infinite;
+}
+
+#submitBtn:disabled {
+    transform: none;
+    filter: none;
+}
+
+#submitBtn:disabled:hover {
+    transform: none;
+    filter: none;
+}
+
 .btn-secondary {
     background: #1f1f24;
     color: #fff;
@@ -617,6 +649,16 @@ button:hover {
     border: 1px solid #e8a6bf;
     accent-color: var(--pink-main);
     background: #fff;
+}
+
+@keyframes submitSpinner {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .consent-check input[type="checkbox"]:focus {

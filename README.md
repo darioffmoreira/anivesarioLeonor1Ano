@@ -10,14 +10,14 @@ Static web invitation for Leonor's first birthday, with RSVP automation, interac
 - Auto-start music flow with configurable auto-pause after N completed cycles (default: 3), then manual resume via toggle button.
 - First-visit loading experience (shown once per device via localStorage).
 - Party mini-game (runner/obstacles) with score and local best score persistence.
-- RSVP form with validation for required fields, email format, numeric phone, and guest count range (1 to 20).
+- RSVP form with centralized validation for required fields, native email validity, E.164-lite phone format, and guest count range (1 to 20).
 - Mandatory privacy-consent checkbox before RSVP submit, with dedicated privacy-policy link.
-- Optional consent checkbox for future family-event communications.
 - Hidden honeypot field to reduce spam bot submissions.
+- Submit button loading state (spinner + disabled state) while webhook request is in flight.
 - RSVP submission to a Pipedream webhook (`POST` JSON).
 - Webhook-first automation model: form data is sent to Pipedream, where downstream actions can send emails and append records to Excel.
 - Optional digital ticket generation and code forwarding to the thank-you page.
-- Optional single-submission lock per device via localStorage.
+- Optional single-submission lock per device via localStorage with TTL-based expiry (default: 30 days).
 - Event details panel with quick contact actions (SMS, call, WhatsApp).
 - Location link opening Google Maps directions, plus embedded map view.
 - Thank-you page with personalized message by attendance type.
@@ -103,12 +103,15 @@ npm run test:e2e:ui
 
 - Required fields validation.
 - Invalid email validation.
+- Invalid phone validation (including malformed `+` usage such as `++351...`).
 - Guest count range validation (`1` to `20`).
 - Mandatory privacy-consent validation before submit.
 - Honeypot behavior (early success path without webhook call).
 - Successful submit: payload contract and redirect query params.
 - Webhook error feedback and submit-button recovery.
-- Single-submission lock after successful submit and return to invite page.
+- Webhook non-JSON error feedback with HTTP status context.
+- Active single-submission lock blocks form interactions.
+- Expired single-submission lock is cleared and allows a new submit.
 - Duplicate-submit protection for fast repeated user clicks.
 - Thank-you page personalization by attendance and fallback guest context.
 - Digital ticket visibility rules (`coming`/`maybe` only and `ingressoAtivo` gate).
@@ -147,7 +150,12 @@ Key fields:
 - `backgroundMusicUrl`, `backgroundMusicVolume`, `backgroundMusicAutoPauseAfterCycles`.
 - `privacyPolicyUrl`, `privacyPolicyVersion`.
 - `emailService.endpoint`, `emailService.enabled`.
-- `features.enableDigitalTicket`, `features.enableSingleSubmissionLock`.
+- `features.enableDigitalTicket`, `features.enableSingleSubmissionLock` (both default to `true` when omitted).
+
+Additional runtime constants (same file):
+
+- `SUBMISSION_LOCK_KEY`.
+- `SUBMISSION_LOCK_TTL_MS` (default `30 * 24 * 60 * 60 * 1000`).
 
 Global maintenance behavior is configured in `assets/js/site-mode.js` (`SITE_MODE_CONFIG`).
 
@@ -204,6 +212,7 @@ This is a static website and can be deployed on Netlify, GitHub Pages, Cloudflar
 
 - Loader key: `leonor_invite_first_visit_loader_v1`.
 - Submission lock key: `leonor_invite_submission_lock_v1`.
+- Submission lock TTL default: `30 days`.
 - Background music auto-pause default: `backgroundMusicAutoPauseAfterCycles = 3`.
-- Phone input is normalized to digits only before submit.
+- Phone input is normalized to E.164-lite (`+` optional at start, `9` to `15` digits).
 - Thank-you ticket visibility depends on attendance and digital-ticket feature flag.
