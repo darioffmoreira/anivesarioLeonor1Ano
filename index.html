@@ -165,6 +165,7 @@
                         <div class="consent-block" aria-label="Consentimentos de privacidade">
                             <label class="consent-check" for="privacyConsent">
                                 <input id="privacyConsent" name="privacyConsent" type="checkbox" required>
+                                <span class="checkbox-visual" aria-hidden="true"></span>
                                 <span>
                                     Li e aceito o tratamento dos meus dados para gestão da confirmação de presença, nos termos da
                                     <a id="privacyPolicyLink" class="consent-link" href="pages/privacidade.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>. *
@@ -181,8 +182,9 @@
                     </form>
                 </section>
             </div>
+        </section>
 
-            <section class="party-game-card fade-up delay-2" aria-labelledby="party-game-title">
+        <section class="card party-game-card fade-up delay-2" aria-labelledby="party-game-title">
                 <h2 id="party-game-title">Brincadeira: Salto da Festa</h2>
                 <p class="party-game-intro">Um mini-jogo para entrar no clima da festa. Salta e evita os obstáculos.</p>
 
@@ -193,13 +195,12 @@
                 </div>
 
                 <div id="partyRunnerStage" class="party-game-stage" tabindex="0" aria-label="Área da brincadeira">
-                    <canvas id="partyRunnerCanvas" class="party-runner-canvas" width="760" height="220" aria-label="Jogo de obstáculos"></canvas>
+                    <canvas id="partyRunnerCanvas" class="party-runner-canvas" width="760" height="320" aria-label="Jogo de obstáculos"></canvas>
                     <div class="party-runner-overlay" aria-live="polite" aria-atomic="true">
                         <p id="partyRunnerStatus" class="party-runner-status">Carrega em Começar para iniciar.</p>
                         <p class="party-runner-hint">Computador: Espaço ou seta para cima. Telemóvel: toca na área do jogo.</p>
                     </div>
                 </div>
-            </section>
         </section>
     </main>
 

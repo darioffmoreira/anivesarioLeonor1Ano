@@ -41,10 +41,6 @@
         grid-column: auto;
     }
 
-    .minnie-frame {
-        height: clamp(310px, 82vw, 400px);
-    }
-
     .minnie-frame-wrap {
         margin-top: 24px;
     }
@@ -87,10 +83,6 @@
     .hero-countdown {
         padding: 12px 10px;
         font-size: 0.95rem;
-    }
-
-    .minnie-frame {
-        height: clamp(280px, 88vw, 360px);
     }
 
     .minnie-frame-wrap {

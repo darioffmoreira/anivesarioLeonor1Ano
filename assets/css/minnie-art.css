@@ -26,13 +26,14 @@ body {
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    container-type: size;
 }
 
 .art-scale {
     width: calc(var(--art-width) * 1px);
     height: calc(var(--art-height) * 1px);
     transform-origin: top center;
-    transform: scale(min(1, calc(100vw / (var(--art-width) * 1px)), calc(100vh / (var(--art-height) * 1px))));
+    transform: scale(min(1, calc(100cqw / (var(--art-width) * 1px)), calc(100cqh / (var(--art-height) * 1px))));
 }
 
 #box {

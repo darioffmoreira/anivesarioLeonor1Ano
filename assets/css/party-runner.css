@@ -79,7 +79,7 @@
 
 .party-runner-canvas {
     width: 100%;
-    height: 220px;
+    height: 320px;
     display: block;
 }
 
@@ -151,7 +151,7 @@
     }
 
     .party-runner-canvas {
-        height: 190px;
+        height: 260px;
     }
 
     .party-runner-status,
